@@ -10,13 +10,6 @@ public class Ficha {
         this.Cara2 = Cara2;
     }
 
-    public void Voltear() {
-        
-        int temp = this.Cara1;
-        this.Cara1 = this.Cara2;
-        this.Cara2 = temp;
-    }
-
     public override string ToString() {
         return "[" + this.Cara1 + "-" + this.Cara2 + "]";
     }

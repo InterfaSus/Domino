@@ -11,8 +11,6 @@ public class Prueba : MonoBehaviour
     {
         Ficha ficha = new Ficha(2, 3);
         Debug.Log(ficha.ToString());
-        ficha.Voltear();
-        Debug.Log(ficha.ToString());
     }
 
     // Update is called once per frame
