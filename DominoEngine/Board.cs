@@ -1,6 +1,9 @@
 using DominoEngine.Algorithms;
 namespace DominoEngine;
 
+///<summary>
+///Represents a the game board. Contains the played tokens
+///</summary>
 public class Board {
 
     private readonly List<Token> _placedTokens;
@@ -13,6 +16,10 @@ public class Board {
         _graph = new List<(Token, Token)>();
     }
 
+    ///<summary>
+    ///Returns the available outputs where a token can be placed
+    ///</summary>
+    ///<returns> <c>int[] freeOutputs</c> </returns>
     public int[] FreeOutputs {
         get {
             HashSet<int> outputs = new HashSet<int>();
@@ -30,6 +37,10 @@ public class Board {
 
     }
 
+    ///<summary>
+    ///Places the first token on the board. Calling it more than once without the output parameter will throw exception
+    ///</summary>
+    ///<param name="token">The token to be placed</param>
     public void PlaceToken(Token token) {
 
         if (firstToken != null) {
@@ -40,6 +51,11 @@ public class Board {
         _placedTokens.Add(token);
     }
 
+    ///<summary>
+    ///Places the first token on the board. Calling it more than once without the output parameter will throw exception
+    ///</summary>
+    ///<param name="token">The token to be placed</param>
+    ///<param name="output">The output on the board where the token will be placed. Must match with one of the token's outputs</param>
     public void PlaceToken(Token token, int output) {
         
         if (ArrayOperations<int>.Find(token.FreeOutputs, output) == -1) {
