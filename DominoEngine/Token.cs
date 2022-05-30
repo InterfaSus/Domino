@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace DominoEngine
 {
     ///<summary>
@@ -9,7 +11,7 @@ namespace DominoEngine
         private readonly bool[] AvailableMask;
         public Token(int[] outputs)
         {
-            this.outputs = outputs;
+            this.outputs = (int[])outputs.Clone();
             this.AvailableMask = new bool[outputs.Length];
 
             for (int i = 0; i < AvailableMask.Length; i++)
@@ -32,7 +34,7 @@ namespace DominoEngine
                 }
             }
 
-            throw new Exception("The number" + number + "does not exist on token or is not currently available");
+            throw new Exception("The number " + number + " does not exist on token or is not currently available");
         }
     ///<summary>
     ///Returns all the outputs of the token
@@ -42,7 +44,7 @@ namespace DominoEngine
         { 
             get
             {
-                return outputs;
+                return (int[])outputs.Clone();
             } 
         }
     
@@ -64,7 +66,18 @@ namespace DominoEngine
 
                 return temp.ToArray();
             } 
+        }
 
+        public override string ToString() {
+            
+            StringBuilder result = new StringBuilder("[");
+
+            foreach (var item in outputs) {
+                result.Append(item + "-");
+            }
+            result.Remove(result.Length - 1, 1);
+            result.Append("]");
+            return result.ToString();
         }
     }
 }
