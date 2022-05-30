@@ -1,8 +1,8 @@
 namespace DominoEngine.Algorithms;
 
-public static class ArrayOperations<T> {
+public static class ArrayOperations {
 
-    public static int Find(T?[] array, T? element) {
+    public static int Find<T>(T?[] array, T? element) {
 
         for (int i = 0; i < array.Length; i++) {
             if (element!.Equals(array[i])) return i;

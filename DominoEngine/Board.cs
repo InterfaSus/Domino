@@ -2,7 +2,7 @@ using DominoEngine.Algorithms;
 namespace DominoEngine;
 
 ///<summary>
-///Represents a the game board. Contains the played tokens
+///Represents the game board. Contains the played tokens
 ///</summary>
 public class Board {
 
@@ -19,7 +19,7 @@ public class Board {
     ///<summary>
     ///Returns the available outputs where a token can be placed
     ///</summary>
-    ///<returns> <c>int[] freeOutputs</c> </returns>
+    ///<returns>An array containing the free outputs on the board</returns>
     public int[] FreeOutputs {
         get {
             HashSet<int> outputs = new HashSet<int>();
@@ -34,7 +34,15 @@ public class Board {
 
             return outputs.ToArray();
         }
+    }
 
+    ///<summary>
+    ///Tells if the given output is free on the board or not
+    ///</summary>
+    ///<param name="output">The output to check</param>
+    ///<returns>A boolean indicating if the output is available</returns>
+    public bool HasOutput(int output) {
+        return ArrayOperations.Find<int>(FreeOutputs, output) != -1;
     }
 
     ///<summary>
@@ -42,7 +50,6 @@ public class Board {
     ///</summary>
     ///<param name="token">The token to be placed</param>
     public void PlaceToken(Token token) {
-
         if (firstToken != null) {
             throw new Exception("The first token was already placed. Output field is required");
         }
@@ -58,17 +65,19 @@ public class Board {
     ///<param name="output">The output on the board where the token will be placed. Must match with one of the token's outputs</param>
     public void PlaceToken(Token token, int output) {
         
-        if (ArrayOperations<int>.Find(token.FreeOutputs, output) == -1) {
+        if (!token.HasOutput(output)) {
             throw new ArgumentException("The provided token and output don't match");
         }
 
         foreach (var placedToken in _placedTokens) {
-            if (ArrayOperations<int>.Find(placedToken.FreeOutputs, output) != -1) {
+            if (token.HasOutput(output)) {
 
                 placedToken.PlaceTokenOn(output);
                 token.PlaceTokenOn(output);
+
                 _placedTokens.Add(token);
                 _graph.Add((token, placedToken));
+
                 return;
             }
         }
