@@ -2,7 +2,7 @@ namespace DominoEngine;
 
 public interface IEvaluator {
 
-    int Evaluate(Ficha t);
+    int Evaluate(Token t);
 }
 
 public interface IToken

@@ -2,9 +2,9 @@ using DominoEngine;
 
 public class RegularEvaluator : IEvaluator {
 
-    public int Evaluate(Ficha t) {
+    public int Evaluate(Token token) {
 
-        int[] outputs = new int[2]; // = t.Outputs()
+        int[] outputs = token.Outputs;
         int sum = 0;
         foreach (int face in outputs) {
             sum += face;

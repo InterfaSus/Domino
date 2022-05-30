@@ -3,41 +3,54 @@ namespace DominoEngine;
 
 public class Board {
 
-    private readonly List<Ficha> _placedTokens;
-    private readonly List<(Ficha, Ficha)> _graph; // Currently the graph has no real use
+    private readonly List<Token> _placedTokens;
+    private readonly List<(Token, Token)> _graph; // Currently the graph has no real use
+    private Token? firstToken;
 
     public Board() {
 
-        _placedTokens = new List<Ficha>();
-        _graph = new List<(Ficha, Ficha)>();
+        _placedTokens = new List<Token>();
+        _graph = new List<(Token, Token)>();
     }
 
-    public int[] BoardFreeOutputs() {
+    public int[] FreeOutputs {
+        get {
+            HashSet<int> outputs = new HashSet<int>();
 
-        HashSet<int> outputs = new HashSet<int>();
-
-        foreach (var token in _placedTokens) {
-            
-            int[] tokenFreeOutputs = new int[2]; // token.FreeOutputs();
-            foreach (var head in tokenFreeOutputs) {
-                outputs.Add(head);
+            foreach (var token in _placedTokens) {
+                
+                int[] tokenFreeOutputs = token.FreeOutputs;
+                foreach (var head in tokenFreeOutputs) {
+                    outputs.Add(head);
+                }
             }
+
+            return outputs.ToArray();
         }
 
-        return outputs.ToArray();
     }
 
-    public void PlaceToken(Ficha token, int output) {
+    public void PlaceToken(Token token) {
 
-        if (ArrayOperations<int>.Find(new int[2], output) == -1) { // token.FreeOutputs()
+        if (firstToken != null) {
+            throw new Exception("The first token was already placed. Output field is required");
+        }
+
+        firstToken = token;
+        _placedTokens.Add(token);
+    }
+
+    public void PlaceToken(Token token, int output) {
+        
+        if (ArrayOperations<int>.Find(token.FreeOutputs, output) == -1) {
             throw new ArgumentException("The provided token and output don't match");
         }
 
         foreach (var placedToken in _placedTokens) {
-            if (ArrayOperations<int>.Find(new int[2], output) != -1) { // placedToken.FreeOutputs(), output
+            if (ArrayOperations<int>.Find(placedToken.FreeOutputs, output) != -1) {
 
-                // placedToken.Cover(output);
-                // token.Cover(output);
+                placedToken.PlaceTokenOn(output);
+                token.PlaceTokenOn(output);
                 _placedTokens.Add(token);
                 _graph.Add((token, placedToken));
                 return;
