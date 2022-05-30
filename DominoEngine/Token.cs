@@ -68,6 +68,10 @@ namespace DominoEngine
             } 
         }
 
+        public bool HasOutput(int output) {
+            throw new NotImplementedException();
+        }
+
         public override string ToString() {
             
             StringBuilder result = new StringBuilder("[");
