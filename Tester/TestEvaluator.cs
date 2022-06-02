@@ -1,13 +1,14 @@
 using DominoEngine;
 
-public class RegularEvaluator : IEvaluator {
+public class AditiveEvaluator<T> : IEvaluator<Token<T>> where T : IEvaluable {
 
-    public int Evaluate(Token token) {
+    public int Evaluate(Token<T> token) {
 
-        int[] outputs = token.Outputs;
+        T[] outputs = token.Outputs;
         int sum = 0;
-        foreach (int face in outputs) {
-            sum += face;
+
+        foreach (var face in outputs) {
+            sum += face.Value;
         }
         return sum;
     }

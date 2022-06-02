@@ -1,12 +1,17 @@
 namespace DominoEngine;
 
-public interface IEvaluator {
+public interface IEvaluator<T> {
 
-    int Evaluate(Token t);
+    int Evaluate(T t);
 }
 
-public interface IToken
-    {
-        int[] Outputs { get; }
-        int[] FreeOutputs { get; }
-    }
+public interface IEvaluable {
+
+    int Value { get; }
+}
+
+public interface IToken<out T>
+{
+    T[] Outputs { get; }
+    T[] FreeOutputs { get; }
+}

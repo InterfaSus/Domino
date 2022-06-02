@@ -5,13 +5,13 @@ namespace DominoEngine
     ///<summary>
     ///Class <c>Token</c> Represents a Token with n(integer) possibles values
     ///</summary>
-    public class Token : IToken
+    public class Token<T> : IToken<T> where T : IEvaluable
     {
-        private readonly int[] outputs;
+        private readonly T[] outputs;
         private readonly bool[] AvailableMask;
-        public Token(int[] outputs)
+        public Token(T[] outputs)
         {
-            this.outputs = (int[])outputs.Clone();
+            this.outputs = (T[])outputs.Clone();
             this.AvailableMask = new bool[outputs.Length];
 
             for (int i = 0; i < AvailableMask.Length; i++)
@@ -20,44 +20,48 @@ namespace DominoEngine
             }
         }
 
-    ///<summary>
-    ///Represent to place a token on a defined position
-    ///</summary>
-    ///<param name="number"> The output's number where the other token will be placed</param>
-        public void PlaceTokenOn(int number)
-        {
+        ///<summary>
+        ///Represent to place a token on a defined position
+        ///</summary>
+        ///<param name="number"> The output's value where the other token will be placed</param>
+        public void PlaceTokenOn(T? value)
+        {   
+            if (value == null) {
+                throw new ArgumentException("Argument \"value\" cannot be null");
+            }
+
             for (int i = 0; i < outputs.Length; i++)
             {
-                if(outputs[i] == number && AvailableMask[i]){ 
+                if(outputs[i]!.Equals(value) && AvailableMask[i]) { 
                     AvailableMask[i] = false;
                     return;
                 }
             }
 
-            throw new Exception("The number " + number + " does not exist on token or is not currently available");
+            throw new Exception("The value " + value + " does not exist on token or is not currently available");
         }
-    ///<summary>
-    ///Returns all the outputs of the token
-    ///</summary>
-    ///<returns> <c>int[] outputs</c> </returns>
-        public int[] Outputs 
+        
+        ///<summary>
+        ///Returns all the outputs of the token
+        ///</summary>
+        ///<returns> <c>An array of type T with every token output</c> </returns>
+        public T[] Outputs 
         { 
             get
             {
-                return (int[])outputs.Clone();
+                return (T[])outputs.Clone();
             } 
         }
     
-    ///<summary>
-    ///Returns all the availables outputs of the token
-    ///</summary>
-    ///<returns> <c>int[] outputs</c> </returns>
-
-        public int[] FreeOutputs 
+        ///<summary>
+        ///Returns all the availables outputs of the token
+        ///</summary>
+        ///<returns> <c>An array of type T with every token free output</c> </returns>
+        public T[] FreeOutputs 
         { 
             get
             {
-                List<int> temp = new List<int>();
+                List<T> temp = new List<T>();
 
                 for (int i = 0; i < outputs.Length; i++)
                 {
@@ -68,7 +72,7 @@ namespace DominoEngine
             } 
         }
 
-        public bool HasOutput(int output) {
+        public bool HasOutput(T output) {
             throw new NotImplementedException();
         }
 
