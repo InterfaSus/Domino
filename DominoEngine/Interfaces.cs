@@ -10,7 +10,7 @@ public interface IEvaluable {
     int Value { get; }
 }
 
-public interface IToken<out T>
+public interface IToken<out T> : IEvaluable
 {
     T[] Outputs { get; }
     T[] FreeOutputs { get; }

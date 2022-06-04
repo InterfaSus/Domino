@@ -72,8 +72,28 @@ namespace DominoEngine
             } 
         }
 
+        public int Value 
+        { 
+            get
+            {
+                int TotalValue = 0;
+
+                for (int i = 0; i < outputs.Length; i++)
+                {
+                    TotalValue += outputs[i].Value;
+                }
+
+                return TotalValue;
+            } 
+        }
+
+        ///<summary>
+        ///Tells if the given output its available on the Token or not
+        ///</summary>
+        ///<param name="output">The output to check</param>
+        ///<returns>A boolean indicating if the output is available</returns>
         public bool HasOutput(T output) {
-            throw new NotImplementedException();
+            return Algorithms.ArrayOperations.Find<T>(this.FreeOutputs , output) != -1;
         }
 
         public override string ToString() {
