@@ -60,7 +60,7 @@ public class Board<T> where T : IEvaluable {
     }
 
     ///<summary>
-    ///Places the first token on the board. Calling it more than once without the output parameter will throw exception
+    ///Places a token on the board. Calling it more than once without the output parameter will throw exception
     ///</summary>
     ///<param name="token">The token to be placed</param>
     ///<param name="output">The output on the board where the token will be placed. Must match with one of the token's outputs</param>
