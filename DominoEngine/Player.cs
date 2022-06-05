@@ -25,14 +25,14 @@ public class Player<T> where T : IEvaluable
 
     ///<summary>
     ///Makes the players select a Token to play, and removes it from their Set.
-    ///If the player cant play returns (null, default(T))
+    ///If the player cant play returns (name, null, default(T))
     ///</summary>
     ///<returns> <c>The Token to be played</c> </returns>
-    public (Token<T>?, T?) Play(T[] BoardOutputs, GameStatus<T> status)
+    public (string, Token<T>?, T?) Play(T[] BoardOutputs, GameStatus<T> status)
     {
         Token<T>[] optionsToPlay = AvailableOptions(hand.ToArray(), BoardOutputs);
 
-        if(optionsToPlay.Length == 0) return (null, default(T));
+        if(optionsToPlay.Length == 0) return (Name, null, default(T));
 
         (Token<T>, T) Move = playersStrategy(status, optionsToPlay, BoardOutputs);
 
@@ -40,7 +40,7 @@ public class Player<T> where T : IEvaluable
 
         if (hand.Count == 0) System.Console.WriteLine(Name + " gano!");
 
-        return Move;
+        return (name, Move.Item1, Move.Item2);
     }
 
     private static Token<T>[] AvailableOptions( Token<T>[] Hand, T[] Availables)

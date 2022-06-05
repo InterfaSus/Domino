@@ -27,7 +27,18 @@ public class GameManager<T> where T : IEvaluable {
     ///<param name="tokensInHand">The amount of tokens to be dealed to each player</param>
     ///<param name="outputsAmount">The amount of outputs of each token. By default 2</param>
     ///<param name="evaluator">An ITokenEvaluator implementation to calculate token values. Defaults to an AditiveEvaluator</param>
-    public GameManager(strategy<T>[] strategies, Generator<T> generator, int tokenTypeAmount, int tokensInHand, int outputsAmount = 2, ITokenEvaluator<T>? evaluator = null) {
+    public GameManager(strategy<T>[] strategies, Generator<T> generator, int tokenTypeAmount, int tokensInHand, int outputsAmount = 2, string[]? playerNames = null, ITokenEvaluator<T>? evaluator = null) {
+        
+        if (playerNames == null) {
+
+            playerNames = new string[strategies.Length];
+            for (int i = 0; i < strategies.Length; i++) {
+                playerNames[i] = "Player #" + (i + 1);
+            }
+        }
+        else if (playerNames.Length != strategies.Length) {
+            throw new ArgumentException("playerNames array has different size that strategies array");
+        }
 
         if (evaluator == null) evaluator = new AditiveEvaluator<T>();
 
@@ -43,15 +54,15 @@ public class GameManager<T> where T : IEvaluable {
         }
 
         for (int i = 0; i < strategies.Length; i++) {
-            _players[i] = new Player<T>("Player #" + (i + 1), TokenUniverse[(i * tokensInHand)..(i * tokensInHand + tokensInHand)], strategies[i]);
+            _players[i] = new Player<T>(playerNames[i], TokenUniverse[(i * tokensInHand)..(i * tokensInHand + tokensInHand)], strategies[i]);
         }
 
     }
     
     ///<summary>
-    ///Makes the player in turn move. Returns a tuple with the played token and the output where it was played. If the player didn't place a token, returns (null, default(T))
+    ///Makes the player in turn move. Returns a tuple with the name of the current player, the played token and the output where it was played. If the player didn't place a token, returns (name, null, default(T))
     ///</summary>
-    public (Token<T>, T) MakeMove() {
+    public (string, Token<T>, T) MakeMove() {
 
         Player<T> currentPlayer = NextPlayer();
 
@@ -63,7 +74,7 @@ public class GameManager<T> where T : IEvaluable {
             availableOutputs = tokenTypes!;
             firstMove = true;
         }
-        var (token, output) = currentPlayer.Play(availableOutputs, _status);
+        var (name, token, output) = currentPlayer.Play(availableOutputs, _status);
 
         if (token != null) {
 
@@ -73,7 +84,7 @@ public class GameManager<T> where T : IEvaluable {
         if (firstMove) output = default(T);
         _status.AddMove(currentPlayer, token!, output!);
 
-        return (token!, output!);
+        return (name, token!, output!);
     }
 
     Player<T> NextPlayer() {
