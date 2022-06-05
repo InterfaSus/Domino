@@ -13,7 +13,8 @@ public class GameManager<T> where T : IEvaluable {
     private readonly Player<T>[] _players;
     private readonly GameStatus<T> _status;
     private readonly Token<T>[] TokenUniverse;
-
+    
+    private T[]? tokenTypes;
     private int lastPlayerIndex = -1;
     private int turnDirection = 1;
 
@@ -46,14 +47,30 @@ public class GameManager<T> where T : IEvaluable {
         }
 
     }
-
+    
+    ///<summary>
+    ///Makes the player in turn move. Returns a tuple with the played token and the output where it was played. If the player didn't place a token, returns (null, default(T))
+    ///</summary>
     public (Token<T>, T) MakeMove() {
 
         Player<T> currentPlayer = NextPlayer();
 
-        var (token, output) = currentPlayer.Play(_board.FreeOutputs, _status);
+        T[] availableOutputs = _board.FreeOutputs;
+        bool firstMove = false;
 
-        if (token != null) _board.PlaceToken(token);
+        if (availableOutputs.Length == 0) {
+
+            availableOutputs = tokenTypes!;
+            firstMove = true;
+        }
+        var (token, output) = currentPlayer.Play(availableOutputs, _status);
+
+        if (token != null) {
+
+            if (firstMove) _board.PlaceToken(token);
+            else _board.PlaceToken(token, output!);
+        };
+        if (firstMove) output = default(T);
         _status.AddMove(currentPlayer, token!, output!);
 
         return (token!, output!);
@@ -76,13 +93,13 @@ public class GameManager<T> where T : IEvaluable {
         generatingTokens = new List<Token<T>>();
         tokenStrings = new HashSet<string>();
 
-        T[] tokenTypes = generator(n);
-        GenerateAll(tokenTypes, new T[outputsAmount], 0);
+        tokenTypes = generator(n);
+        GenerateAll(new T[outputsAmount], 0);
 
         return generatingTokens.ToArray();
     }
     
-    void GenerateAll(T[] tokenTypes, T[] currentOutputs, int pos) {
+    void GenerateAll(T[] currentOutputs, int pos) {
 
         if (pos == currentOutputs.Length) {
 
@@ -95,10 +112,10 @@ public class GameManager<T> where T : IEvaluable {
             return;
         }
 
-        for (int i = 0; i < tokenTypes.Length; i++) {
+        for (int i = 0; i < tokenTypes!.Length; i++) {
             
             currentOutputs[pos] = tokenTypes[i];
-            GenerateAll(tokenTypes, currentOutputs, pos + 1);
+            GenerateAll(currentOutputs, pos + 1);
         }
     }
 }

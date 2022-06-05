@@ -31,9 +31,9 @@ namespace DominoEngine.Utils.Strategies
         ///</summary>
         public static (Token<T>, T outputToPlay) RandomOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
-            Random r = new Random(Hand.Length);
+            Random r = new Random();
 
-            Token<T> RandomToken = Hand[r.Next()];
+            Token<T> RandomToken = Hand[r.Next(Hand.Length - 1)];
             T outputToPlay = SelectRandomOutput(RandomToken, AvailableOutputs);
             
             return (RandomToken, outputToPlay);

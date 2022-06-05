@@ -8,13 +8,19 @@ public class Player<T> where T : IEvaluable
 {
     private HashSet< Token<T> > hand;
     private readonly string name;
-    private strategy<T> playersStrategie;
+    private strategy<T> playersStrategy;
 
     public Player(string Name, Token<T>[] Hand, strategy<T> PlayersStrategie)
     {
+        foreach (var item in Hand)
+        {
+            System.Console.Write(item + " ");
+        }
+        System.Console.WriteLine();
+        
         this.name = Name;
         this.hand = new HashSet< Token<T> >(Hand);
-        this.playersStrategie = PlayersStrategie;
+        this.playersStrategy = PlayersStrategie;
     }
 
     ///<summary>
@@ -28,9 +34,11 @@ public class Player<T> where T : IEvaluable
 
         if(optionsToPlay.Length == 0) return (null, default(T));
 
-        (Token<T>, T) Move = playersStrategie(status, optionsToPlay, BoardOutputs);
+        (Token<T>, T) Move = playersStrategy(status, optionsToPlay, BoardOutputs);
 
         hand.Remove(Move.Item1);
+
+        if (hand.Count == 0) System.Console.WriteLine(Name + " gano!");
 
         return Move;
     }
