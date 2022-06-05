@@ -1,5 +1,8 @@
-using DominoEngine;
+namespace DominoEngine.Utils.TokenTypes;
 
+///<summary>
+///An adapter to use numbers as output types
+///</summary>
 public class Number : IEvaluable {
 
     private readonly int Num;
@@ -8,10 +11,17 @@ public class Number : IEvaluable {
         this.Num = num;
     }
 
-    public int Value {
-        get {
-            return Num;
+    public int Value => Num;
+
+    public static Number[] Generate(int n) {
+
+        Number[] result = new Number[n];
+
+        for (int i = 0; i < n; i++) {
+            result[i] = new Number(i);
         }
+
+        return result;
     }
 
     public override bool Equals(object? obj) {

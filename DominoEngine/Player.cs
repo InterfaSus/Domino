@@ -1,5 +1,5 @@
+using DominoEngine.Utils;
 namespace DominoEngine;
-using DominoEngine.Strategies;
 
 ///<summary>
 ///Represents a player with a set of Tokens
@@ -8,9 +8,9 @@ public class Player<T> where T : IEvaluable
 {
     private HashSet< Token<T> > hand;
     private readonly string name;
-    private strategie<T> playersStrategie;
+    private strategy<T> playersStrategie;
 
-    public Player(string Name, Token<T>[] Hand, strategie<T> PlayersStrategie)
+    public Player(string Name, Token<T>[] Hand, strategy<T> PlayersStrategie)
     {
         this.name = Name;
         this.hand = new HashSet< Token<T> >(Hand);
@@ -22,17 +22,13 @@ public class Player<T> where T : IEvaluable
     ///If the player cant play returns (null, default(T))
     ///</summary>
     ///<returns> <c>The Token to be played</c> </returns>
-    public (Token<T>, T) Play(T[] BoardOutputs, object History)
+    public (Token<T>?, T?) Play(T[] BoardOutputs, GameStatus<T> status)
     {
         Token<T>[] optionsToPlay = AvailableOptions(hand.ToArray(), BoardOutputs);
 
-        if(optionsToPlay.Length == 0)
-        {
-            (Token<T>, T) value = (null, default(T));
-            return value;
-        }
+        if(optionsToPlay.Length == 0) return (null, default(T));
 
-        (Token<T>, T) Move = playersStrategie(History, optionsToPlay, BoardOutputs);
+        (Token<T>, T) Move = playersStrategie(status, optionsToPlay, BoardOutputs);
 
         hand.Remove(Move.Item1);
 

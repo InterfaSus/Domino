@@ -12,6 +12,7 @@ namespace DominoEngine
         public Token(T[] outputs)
         {
             this.outputs = (T[])outputs.Clone();
+            Array.Sort(this.outputs, (x, y) => x.Value - y.Value);
             this.AvailableMask = new bool[outputs.Length];
 
             for (int i = 0; i < AvailableMask.Length; i++)
@@ -69,21 +70,6 @@ namespace DominoEngine
                 }
 
                 return temp.ToArray();
-            } 
-        }
-
-        public int Value 
-        { 
-            get
-            {
-                int TotalValue = 0;
-
-                for (int i = 0; i < outputs.Length; i++)
-                {
-                    TotalValue += outputs[i].Value;
-                }
-
-                return TotalValue;
             } 
         }
 
