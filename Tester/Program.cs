@@ -1,29 +1,25 @@
 ﻿using DominoEngine;
+using DominoEngine.Utils;
+using DominoEngine.Utils.Strategies;
+using DominoEngine.Utils.TokenTypes;
 
-Board<Number> board = new Board<Number>();
-Token<Number>[] tokens = new Token<Number>[4];
+strategy<Number>[] playerStrategies = new strategy<Number>[4];
 
-tokens[0] = new Token<Number>(new Number[] { new Number(0), new Number(0) });
-tokens[1] = new Token<Number>(new Number[] { new Number(0), new Number(1) });
-tokens[2] = new Token<Number>(new Number[] { new Number(1), new Number(2) });
-tokens[3] = new Token<Number>(new Number[] { new Number(2), new Number(2) });
+playerStrategies[0] = Strategies<Number>.BiggestOption;
+playerStrategies[1] = Strategies<Number>.BiggestOption;
+playerStrategies[2] = Strategies<Number>.BiggestOption;
+playerStrategies[3] = Strategies<Number>.BiggestOption;
 
-AditiveEvaluator<Number> evaluator = new AditiveEvaluator<Number>();
+GameManager<Number> manager = new GameManager<Number>(playerStrategies, Number.Generate, tokenTypeAmount: 7, tokensInHand: 7, outputsAmount: 2);
 
-System.Console.WriteLine("Testing evaluator");
-for (int i = 0; i < tokens.Length; i++) {
-    System.Console.WriteLine(evaluator.Evaluate(tokens[i]));
-}
+System.Console.WriteLine("✅ Tokens dealed");
 
-System.Console.WriteLine("Testing token placement");
 
-board.PlaceToken(tokens[0]);
-board.PlaceToken(tokens[1], new Number(0));
-board.PlaceToken(tokens[2], new Number(1));
-// board.PlaceToken(tokens[3], new Number(2));
+for (int i = 0; i < 40; i++) {
 
-Number[] free = board.FreeOutputs;
+    Console.Write($"Player {i % 4 + 1}: ");
 
-for (int i = 0; i < free.Length; i++) {
-    System.Console.WriteLine(free[i]);
+    var (token, output) = manager.MakeMove();
+    if (token == null) System.Console.WriteLine("Pass");
+    else System.Console.WriteLine(token);
 }

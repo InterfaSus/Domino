@@ -1,10 +1,5 @@
-namespace DominoEngine.Strategies
+namespace DominoEngine.Utils.Strategies
 {
-    ///<summary>
-    ///Generic Strategie Delegate
-    ///</summary>
-    ///<returns> <c>The Token to be played</c> </returns>
-    public delegate (Token<T>, T output) strategie<T>(object History, Token<T>[] Hand, T[] AvailableOutputs) where T : IEvaluable;
 
     ///<summary>
     ///Group of pre-made strategies 
@@ -14,13 +9,13 @@ namespace DominoEngine.Strategies
         ///<summary>
         ///It choose the most valuable token that its possible to place
         ///</summary>
-        public static (Token<T>, T output) BiggestOption(object History, Token<T>[] Hand, T[] AvailableOutputs)
+        public static (Token<T>, T output) BiggestOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
             Token<T> BiggestToken = Hand[0];
 
             for (int i = 0; i < Hand.Length; i++)
             {
-                if (BiggestToken.Value < Hand[i].Value)
+                if (status.Evaluator.Evaluate(BiggestToken) < status.Evaluator.Evaluate(Hand[i]))
                 {
                     BiggestToken = Hand[i];
                 }
@@ -34,11 +29,11 @@ namespace DominoEngine.Strategies
         ///<summary>
         ///It choose a random token that its possible to play
         ///</summary>
-        public static (Token<T>, T outputToPlay) RandomOption(object History, Token<T>[] Hand, T[] AvailableOutputs)
+        public static (Token<T>, T outputToPlay) RandomOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
-            Random r = new Random(Hand.Length);
+            Random r = new Random();
 
-            Token<T> RandomToken = Hand[r.Next()];
+            Token<T> RandomToken = Hand[r.Next(Hand.Length - 1)];
             T outputToPlay = SelectRandomOutput(RandomToken, AvailableOutputs);
             
             return (RandomToken, outputToPlay);

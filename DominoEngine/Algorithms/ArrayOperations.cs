@@ -18,4 +18,20 @@ public static class ArrayOperations {
 
         return -1;
     }
+
+    ///<summary>
+    ///Randomly shuffles the elements in an array
+    ///</summary>
+    ///<param name="array">The array to be shuffled</param>
+    public static void RandomShuffle<T>(T[] array) {
+
+        Random r = new Random();
+        for (int i = 0; i < array.Length; i++) {
+
+            int pos = r.Next(array.Length);
+            T temp = array[i];
+            array[i] = array[pos];
+            array[pos] = temp;
+        }
+    }
 }
