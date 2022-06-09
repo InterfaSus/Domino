@@ -16,7 +16,6 @@ public class GameManager<T> where T : IEvaluable {
     
     private T[]? tokenTypes;
     private int lastPlayerIndex = -1;
-    private int turnDirection = 1;
 
     ///<summary>
     ///Constructor of GameManager class
@@ -56,13 +55,12 @@ public class GameManager<T> where T : IEvaluable {
         for (int i = 0; i < strategies.Length; i++) {
             _players[i] = new Player<T>(playerNames[i], TokenUniverse[(i * tokensInHand)..(i * tokensInHand + tokensInHand)], strategies[i]);
         }
-
     }
     
     ///<summary>
-    ///Makes the player in turn move. Returns a tuple with the name of the current player, the played token and the output where it was played. If the player didn't place a token, returns (name, null, default(T))
+    ///Makes the player in turn move. Returns a PlayData object. If the player passed, the token and output will be null
     ///</summary>
-    public (string, Token<T>, T) MakeMove() {
+    public PlayData<T> MakeMove() {
 
         Player<T> currentPlayer = NextPlayer();
 
@@ -74,7 +72,7 @@ public class GameManager<T> where T : IEvaluable {
             availableOutputs = tokenTypes!;
             firstMove = true;
         }
-        var (name, token, output) = currentPlayer.Play(availableOutputs, _status);
+        var (playerName, token, output) = currentPlayer.Play(availableOutputs, _status);
 
         if (token != null) {
 
@@ -82,19 +80,17 @@ public class GameManager<T> where T : IEvaluable {
             else _board.PlaceToken(token, output!);
         };
         if (firstMove) output = default(T);
-        _status.AddMove(currentPlayer, token!, output!);
+        _status.AddMove(playerName, token!, output!);
 
-        return (name, token!, output!);
+        string[] winners = new string[0]; // = CheckWinners() -> Method that returns all the winner players
+
+        return new WinnerPlayData<T>(playerName, token, output, winners);
     }
 
     Player<T> NextPlayer() {
         
-        lastPlayerIndex = (lastPlayerIndex + turnDirection) % _players.Length;
+        lastPlayerIndex = (lastPlayerIndex + 1) % _players.Length;
         return _players[lastPlayerIndex];
-    }
-
-    void ReverseTurnOrder() {
-        turnDirection *= -1;
     }
     
     List<Token<T>>? generatingTokens;
