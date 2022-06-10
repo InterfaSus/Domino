@@ -24,6 +24,11 @@ public class Player<T> where T : IEvaluable
     }
 
     ///<summary>
+    ///Returns a copy of the tokens on the player's hand
+    ///</summary>
+    internal Token<T>[] TokensInHand => hand.ToArray();
+
+    ///<summary>
     ///Makes the players select a Token to play, and removes it from their Set.
     ///If the player cant play, the token and output returned in the PlayData object will be null
     ///</summary>

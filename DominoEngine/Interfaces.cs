@@ -15,3 +15,9 @@ public interface IToken<out T> where T : IEvaluable
     T[] Outputs { get; }
     T[] FreeOutputs { get; }
 }
+
+public interface IGameManager<T> where T : IEvaluable {
+
+    GameStatus<T> Status { get; }
+    (string, Token<T>[])[] PlayersTokens { get; }
+}

@@ -7,13 +7,30 @@ namespace DominoEngine;
 ///<summary>
 ///An instance of this class represents a game. It controls everithing it happens
 ///</summary>
-public class GameManager<T> where T : IEvaluable {
+public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
+    public GameStatus<T> Status { get; }
     private readonly Board<T> _board;
     private readonly Player<T>[] _players;
-    private readonly GameStatus<T> _status;
     private readonly Token<T>[] TokenUniverse;
     
+    ///<summary>
+    ///Returns an array containing each player's name and hand
+    ///</summary>
+    public (string, Token<T>[])[] PlayersTokens {
+        get {
+            (string, Token<T>[])[] result = new (string, Token<T>[])[_players.Length];
+
+            int i = 0;
+            foreach (var player in _players) {
+                result[i] = (player.Name, player.TokensInHand);
+                i++;
+            }
+            
+            return result;
+        }
+    }
+
     private T[]? tokenTypes;
     private int lastPlayerIndex = -1;
 
@@ -43,7 +60,7 @@ public class GameManager<T> where T : IEvaluable {
 
         _players = new Player<T>[strategies.Length];
         _board = new Board<T>();
-        _status = new GameStatus<T>(evaluator);
+        Status = new GameStatus<T>(evaluator);
         
         TokenUniverse = GenerateTokens(tokenTypeAmount, generator, outputsAmount);
         ArrayOperations.RandomShuffle<Token<T>>(TokenUniverse);
@@ -72,7 +89,7 @@ public class GameManager<T> where T : IEvaluable {
             availableOutputs = tokenTypes!;
             firstMove = true;
         }
-        var (playerName, token, output) = currentPlayer.Play(availableOutputs, _status);
+        var (playerName, token, output) = currentPlayer.Play(availableOutputs, Status);
 
         if (token != null) {
 
@@ -80,12 +97,14 @@ public class GameManager<T> where T : IEvaluable {
             else _board.PlaceToken(token, output!);
         };
         if (firstMove) output = default(T);
-        _status.AddMove(playerName, token!, output!);
+        Status.AddMove(playerName, token!, output!);
 
         string[] winners = new string[0]; // = CheckWinners() -> Method that returns all the winner players
 
         return new WinnerPlayData<T>(playerName, token, output, winners);
     }
+
+    #region Private Methods
 
     Player<T> NextPlayer() {
         
@@ -125,4 +144,6 @@ public class GameManager<T> where T : IEvaluable {
             GenerateAll(currentOutputs, pos + 1);
         }
     }
+    
+    #endregion
 }
