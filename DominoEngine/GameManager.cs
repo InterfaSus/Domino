@@ -7,16 +7,32 @@ namespace DominoEngine;
 ///<summary>
 ///An instance of this class represents a game. It controls everithing it happens
 ///</summary>
-public class GameManager<T> where T : IEvaluable {
+public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
+    public GameStatus<T> Status { get; }
     private readonly Board<T> _board;
     private readonly Player<T>[] _players;
-    private readonly GameStatus<T> _status;
     private readonly Token<T>[] TokenUniverse;
     
+    ///<summary>
+    ///Returns an array containing each player's name and hand
+    ///</summary>
+    public (string, Token<T>[])[] PlayersTokens {
+        get {
+            (string, Token<T>[])[] result = new (string, Token<T>[])[_players.Length];
+
+            int i = 0;
+            foreach (var player in _players) {
+                result[i] = (player.Name, player.TokensInHand);
+                i++;
+            }
+            
+            return result;
+        }
+    }
+
     private T[]? tokenTypes;
     private int lastPlayerIndex = -1;
-    private int turnDirection = 1;
 
     ///<summary>
     ///Constructor of GameManager class
@@ -44,7 +60,7 @@ public class GameManager<T> where T : IEvaluable {
 
         _players = new Player<T>[strategies.Length];
         _board = new Board<T>();
-        _status = new GameStatus<T>(evaluator);
+        Status = new GameStatus<T>(evaluator);
         
         TokenUniverse = GenerateTokens(tokenTypeAmount, generator, outputsAmount);
         ArrayOperations.RandomShuffle<Token<T>>(TokenUniverse);
@@ -56,13 +72,12 @@ public class GameManager<T> where T : IEvaluable {
         for (int i = 0; i < strategies.Length; i++) {
             _players[i] = new Player<T>(playerNames[i], TokenUniverse[(i * tokensInHand)..(i * tokensInHand + tokensInHand)], strategies[i]);
         }
-
     }
     
     ///<summary>
-    ///Makes the player in turn move. Returns a tuple with the name of the current player, the played token and the output where it was played. If the player didn't place a token, returns (name, null, default(T))
+    ///Makes the player in turn move. Returns a PlayData object. If the player passed, the token and output will be null
     ///</summary>
-    public (string, Token<T>, T) MakeMove() {
+    public PlayData<T> MakeMove() {
 
         Player<T> currentPlayer = NextPlayer();
 
@@ -74,7 +89,7 @@ public class GameManager<T> where T : IEvaluable {
             availableOutputs = tokenTypes!;
             firstMove = true;
         }
-        var (name, token, output) = currentPlayer.Play(availableOutputs, _status);
+        var (playerName, token, output) = currentPlayer.Play(availableOutputs, Status);
 
         if (token != null) {
 
@@ -82,19 +97,19 @@ public class GameManager<T> where T : IEvaluable {
             else _board.PlaceToken(token, output!);
         };
         if (firstMove) output = default(T);
-        _status.AddMove(currentPlayer, token!, output!);
+        Status.AddMove(playerName, token!, output!);
 
-        return (name, token!, output!);
+        string[] winners = new string[0]; // = CheckWinners() -> Method that returns all the winner players
+
+        return new WinnerPlayData<T>(playerName, token, output, winners);
     }
+
+    #region Private Methods
 
     Player<T> NextPlayer() {
         
-        lastPlayerIndex = (lastPlayerIndex + turnDirection) % _players.Length;
+        lastPlayerIndex = (lastPlayerIndex + 1) % _players.Length;
         return _players[lastPlayerIndex];
-    }
-
-    void ReverseTurnOrder() {
-        turnDirection *= -1;
     }
     
     List<Token<T>>? generatingTokens;
@@ -129,4 +144,6 @@ public class GameManager<T> where T : IEvaluable {
             GenerateAll(currentOutputs, pos + 1);
         }
     }
+    
+    #endregion
 }

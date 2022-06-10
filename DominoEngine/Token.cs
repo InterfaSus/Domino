@@ -25,7 +25,7 @@ namespace DominoEngine
         ///Represent to place a token on a defined position
         ///</summary>
         ///<param name="number"> The output's value where the other token will be placed</param>
-        public void PlaceTokenOn(T? value)
+        internal void PlaceTokenOn(T? value)
         {   
             if (value == null) {
                 throw new ArgumentException("Argument \"value\" cannot be null");

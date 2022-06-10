@@ -24,28 +24,30 @@ public class Player<T> where T : IEvaluable
     }
 
     ///<summary>
-    ///Makes the players select a Token to play, and removes it from their Set.
-    ///If the player cant play returns (name, null, default(T))
+    ///Returns a copy of the tokens on the player's hand
     ///</summary>
-    ///<returns> <c>The Token to be played</c> </returns>
-    public (string, Token<T>?, T?) Play(T[] BoardOutputs, GameStatus<T> status)
+    internal Token<T>[] TokensInHand => hand.ToArray();
+
+    ///<summary>
+    ///Makes the players select a Token to play, and removes it from their Set.
+    ///If the player cant play, the token and output returned in the PlayData object will be null
+    ///</summary>
+    ///<returns> <c>A play data object with info of the played token</c> </returns>
+    public PlayData<T> Play(T[] BoardOutputs, GameStatus<T> status)
     {
         Token<T>[] optionsToPlay = AvailableOptions(hand.ToArray(), BoardOutputs);
 
-        if(optionsToPlay.Length == 0) return (Name, null, default(T));
+        if(optionsToPlay.Length == 0) return new PlayData<T>(this.Name);
 
         (Token<T>, T) Move = playersStrategy(status, optionsToPlay, BoardOutputs);
-
         hand.Remove(Move.Item1);
 
-        if (hand.Count == 0) System.Console.WriteLine(Name + " gano!");
-
-        return (name, Move.Item1, Move.Item2);
+        return new PlayData<T>(this.Name, Move.Item1, Move.Item2);
     }
 
     private static Token<T>[] AvailableOptions( Token<T>[] Hand, T[] Availables)
     {
-            HashSet< Token<T> > optionsHashS = new HashSet< Token<T> >();
+        HashSet< Token<T> > optionsHashS = new HashSet< Token<T> >();
 
         for (int i = 0; i < Hand.Length; i++)
         {
