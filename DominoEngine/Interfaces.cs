@@ -21,3 +21,8 @@ public interface IGameManager<T> where T : IEvaluable {
     GameStatus<T> Status { get; }
     (string, Token<T>[])[] PlayersTokens { get; }
 }
+
+public interface IFilter<T>
+{
+    bool ApplyFilter(T Token) ;
+}

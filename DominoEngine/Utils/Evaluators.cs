@@ -1,11 +1,20 @@
 namespace DominoEngine.Utils.Evaluators;
 
 ///<summary>
-///Calculates a token value by adding the values of all of its outputs
+///Group of pre-made Evaluators
 ///</summary>
-public class AditiveEvaluator<T> : ITokenEvaluator<T> where T : IEvaluable {
+public class Evaluators<T>  where T : IEvaluable {
 
-    public int Evaluate(Token<T> token) {
+    
+
+
+    ///<summary>
+    ///Default additive evaluator
+    ///</summary>
+    ///<returns> The sum of the values of each output of the token </returns>
+    public static int AdditiveEvaluator(Token<T>? token) {
+
+        if(token == null) return 0;
 
         T[] outputs = token.Outputs;
         int sum = 0;

@@ -31,8 +31,14 @@ public class Number : IEvaluable {
         return false;
     }
 
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
+
     public override string ToString()
     {
         return Value.ToString();
     }
+
 }
