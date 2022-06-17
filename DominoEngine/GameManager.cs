@@ -1,6 +1,7 @@
 using DominoEngine.Algorithms;
 using DominoEngine.Utils;
 using DominoEngine.Utils.Evaluators;
+using DominoEngine.Utils.VictoryCriteria;
 
 namespace DominoEngine;
 
@@ -43,7 +44,7 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
     ///<param name="tokensInHand">The amount of tokens to be dealed to each player</param>
     ///<param name="outputsAmount">The amount of outputs of each token. By default 2</param>
     ///<param name="evaluator">An ITokenEvaluator implementation to calculate token values. Defaults to an AditiveEvaluator</param>
-    public GameManager(strategy<T>[] strategies, Generator<T> generator, int tokenTypeAmount, int tokensInHand, int outputsAmount = 2, string[]? playerNames = null, ITokenEvaluator<T>? evaluator = null) {
+    public GameManager(strategy<T>[] strategies, Generator<T> generator, int tokenTypeAmount, int tokensInHand, int outputsAmount = 2, string[]? playerNames = null, evaluator<T>? evaluator = null, victoryCriteria<T>? criteria = null) {
         
         if (playerNames == null) {
 
@@ -56,11 +57,12 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
             throw new ArgumentException("playerNames array has different size that strategies array");
         }
 
-        if (evaluator == null) evaluator = new AditiveEvaluator<T>();
+        if (evaluator == null) evaluator = Evaluators<T>.AdditiveEvaluator;
+        if (criteria == null) criteria = VictoryCriteria<T>.DefaultCriteria;
 
         _players = new Player<T>[strategies.Length];
         _board = new Board<T>();
-        Status = new GameStatus<T>(evaluator);
+        Status = new GameStatus<T>(evaluator, criteria);
         
         TokenUniverse = GenerateTokens(tokenTypeAmount, generator, outputsAmount);
         ArrayOperations.RandomShuffle<Token<T>>(TokenUniverse);

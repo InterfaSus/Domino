@@ -15,7 +15,7 @@ namespace DominoEngine.Utils.Strategies
 
             for (int i = 0; i < Hand.Length; i++)
             {
-                if (status.Evaluator.Evaluate(BiggestToken) < status.Evaluator.Evaluate(Hand[i]))
+                if (status.Evaluator(BiggestToken) < status.Evaluator(Hand[i]))
                 {
                     BiggestToken = Hand[i];
                 }
