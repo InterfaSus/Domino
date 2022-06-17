@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <PostBuildEvent Condition="$([MSBuild]::IsOSPlatform('Linux'))">cp DominoEngine.dll "$(OutDir)../../../../DominoGame/Assets/DLLs/DominoEngine.dll"</PostBuildEvent>
-    <PostBuildEvent Condition="$([MSBuild]::IsOsPlatform('Windows'))">copy DominoEngine.dll "$(OutDir)..\\..\\..\\..\\DominoGame\\Assets\\DLLs\\DominoEngine.dll"</PostBuildEvent>
+    <!-- <PostBuildEvent Condition="$([MSBuild]::IsOSPlatform('Linux'))">cp DominoEngine.dll "$(OutDir)../../../../DominoGame/Assets/DLLs/DominoEngine.dll"</PostBuildEvent> -->
+    <!-- <PostBuildEvent Condition="$([MSBuild]::IsOsPlatform('Windows'))">copy DominoEngine.dll "$(OutDir)..\\..\\..\\..\\DominoGame\\Assets\\DLLs\\DominoEngine.dll"</PostBuildEvent> -->
   </PropertyGroup>
 
 </Project>
