@@ -36,6 +36,8 @@ for (int i = 0; i < 40; i++) {
     }
 }
 
+System.Console.WriteLine("\nManos resultantes:");
+
 var finalHands = manager.PlayersTokens;
 
 foreach (var player in finalHands) {
@@ -46,3 +48,17 @@ foreach (var player in finalHands) {
     }
     System.Console.WriteLine();
 }
+
+(string, Type)[] outputTypes = Implementations.GetOutputTypes();
+
+Type t = outputTypes[0].Item2;
+
+// var evals = Implementations.GetEvaluators<t>;
+
+// Tipo esperado (sring, evaluator<t>)[]. Esta devolviendo un object
+var evals = typeof(Implementations).GetMethod("GetEvaluators")!.MakeGenericMethod(t).Invoke(null, null)!;
+
+System.Console.WriteLine(evals);
+
+(string, strategy<Number>)[] strats = Implementations.GetStrategies<Number>();
+(string, victoryCriteria<Number>)[] criteria = Implementations.GetCriteria<Number>();

@@ -24,4 +24,17 @@ public class Evaluators<T>  where T : IEvaluable {
         }
         return sum;
     }
+
+    public static int PruebaEvaluator(Token<T>? token) {
+
+        if(token == null) return 0;
+
+        T[] outputs = token.Outputs;
+        int sum = 0;
+
+        foreach (var face in outputs) {
+            sum += face.Value;
+        }
+        return sum;
+    }
 }
