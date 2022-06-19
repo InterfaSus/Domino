@@ -21,29 +21,28 @@ public delegate int evaluator<T>(Token<T>? Token) where T : IEvaluable;
 ///Generic Victory Criteria Delegate
 ///</summary>
 ///<returns> <c>The players that had win the game, if no one has win yet, returns an empty array with Lenght = 0 </c> </returns>
-public delegate Player<T>[]? victoryCriteria<T>(GameStatus<T> gameStatus, Player<T>[] Players, Condition<T> condition) where T : IEvaluable;
+public delegate string[] victoryCriteria<T>(GameStatus<T> gameStatus, Player<T>[] Players, IFilter<T>? Filter = null, int Value = 0) where T : IEvaluable;
 
-public class FuseCriteria<T> where T : IEvaluable
+public class CriteriaCollection<T> where T : IEvaluable
 {
 
-    List<victoryCriteria<T>> CriteriasList = new List<victoryCriteria<T>>();
+    List<VictoryChecker<T>> CheckersList = new List<VictoryChecker<T>>();
 
-    public FuseCriteria(victoryCriteria<T> v1, victoryCriteria<T> v2)
+    public CriteriaCollection(VictoryChecker<T> v)
     {
-        CriteriasList.Add(v1);
-        CriteriasList.Add(v2);
+        CheckersList.Add(v);
     }
 
-    public void Add(victoryCriteria<T> v3){ CriteriasList.Add(v3); }
+    public void Add(VictoryChecker<T> v){ CheckersList.Add(v); }
 
-    public Player<T>[]? Run(GameStatus<T> gameStatus, Player<T>[] Players, Condition<T> condition)
+    public string[] RunCheck(GameStatus<T> gameStatus, Player<T>[] players)
     {
-        HashSet< Player<T> > winners = new HashSet< Player<T>>();
+        HashSet< string > winners = new HashSet< string >();
 
-        for (int i = 0; i < CriteriasList.Count; i++)
+        for (int i = 0; i < CheckersList.Count; i++)
         {
-            victoryCriteria<T> v = CriteriasList[i];
-            Player<T>[]? temp = (v(gameStatus,Players,condition));
+            VictoryChecker<T> v = CheckersList[i];
+            string[]? temp = ( v.Check(gameStatus, players));
 
             if(temp != null)
                 for (int j = 0; j < temp.Length; j++)
@@ -53,6 +52,6 @@ public class FuseCriteria<T> where T : IEvaluable
         }
 
         if(winners.Count > 0) return winners.ToArray();
-                              return null;
+                              return new string[0];
     }
 }
