@@ -5,7 +5,7 @@ namespace DominoEngine
     ///<summary>
     ///Class <c>Token</c> Represents a Token with n(integer) possibles values
     ///</summary>
-    public class Token<T> : IToken<T> where T : IEvaluable
+    public class Token<T> where T : IEvaluable
     {
         private readonly T[] outputs;
         private readonly bool[] AvailableMask;

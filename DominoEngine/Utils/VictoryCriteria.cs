@@ -1,5 +1,3 @@
-using DominoEngine.Utils.Evaluators;
-
 namespace DominoEngine.Utils.VictoryCriteria
 {   
 
@@ -12,7 +10,7 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///Default victory criteria
         ///</summary>
         ///<returns> The first player that use all their tokens, or if no one has play in a full round, the player/s with the lowest tokens. </returns>
-        public static Player<T>[]? DefaultCriteria(GameStatus<T> gameStatus, Player<T>[] Players, Condition<T> condition)
+        public static string[]? DefaultCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value = 0)
         {
 
             evaluator<T> Evaluator = gameStatus.Evaluator;
@@ -20,7 +18,7 @@ namespace DominoEngine.Utils.VictoryCriteria
 
             for (int i = 0; i < Players.Length; i++)
             {
-                if( NoTokensLeft( Players[i] )) return new Player<T>[] {Players[i]};
+                if( NoTokensLeft( Players[i] )) return new string[] {Players[i].Name};
             }
             
             if(NoOneCanPlay(history, Players.Length))
@@ -31,29 +29,29 @@ namespace DominoEngine.Utils.VictoryCriteria
 
             GetScores(scores, hands, Evaluator);
 
-            List<Player<T>> Winners= new List<Player<T>>();
+            List<string> Winners= new List<string>();
             int lowestValue = int.MaxValue;
 
             for (int i = 0; i < scores.Length; i++)
             {
                 if( scores[i] < lowestValue)
                 {
-                    Winners = new List<Player<T>>();
+                    Winners = new List<string>();
                    
                     lowestValue = scores[i];
-                    Winners.Add(Players[i]);
+                    Winners.Add(Players[i].Name);
                 }
 
                 else if ( scores[i] == lowestValue)
                 {
-                    Winners.Add(Players[i]);
+                    Winners.Add(Players[i].Name);
                 }
             }
             
             return Winners.ToArray();
             }
 
-            return new Player<T>[0];
+            return null;
         }
 
 
@@ -61,7 +59,7 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///Surpass Sum victory criteria
         ///</summary>
         ///<returns> The first player that surpass the value of the condition win</returns>
-        public static Player<T>[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, Condition<T> condition)
+        public static string[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value = 0)
         {
             int[] Scores = new int[Players.Length];
             int index = 0;   
@@ -69,17 +67,23 @@ namespace DominoEngine.Utils.VictoryCriteria
             List<PlayData<T>> history = gameStatus.history;
             evaluator<T> evaluator = gameStatus.Evaluator;
 
+            if (NoOneCanPlay(history, Players.Length)) {
+                return new string[0];
+            }
+
             for (int i = 0; i < history.Count; i++)
             {
                 if(index >= Players.Length) index = 0;
                 
                 Scores[index] += evaluator(history[i].Token);
                 
-                if(Scores[index] >= condition.GetValue) return new Player<T>[] {Players[index]};
+                if(Scores[index] >= Value) return new string[] {Players[index].Name};
+
+                index++;
             }
 
             return null;
-        }  
+        }
 
 #region Utils
 

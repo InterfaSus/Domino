@@ -1,3 +1,5 @@
+using DominoEngine.Utils;
+
 namespace DominoEngine;
 
 ///<summary>
@@ -6,17 +8,14 @@ namespace DominoEngine;
 public class Condition<T> where T : IEvaluable {
     
 
-    public IFilter< Token<T> > Filter { get; private set; }
+    public tokenFilter<T> Filter { get; private set; }
     public int Value { get; private set; }
 
-    public Condition(IFilter< Token<T> > filter, int value)
+    public Condition(tokenFilter<T> filter, int value)
     {
         Filter = filter;
         Value = value;
     }
-
-    internal IFilter < Token<T> > GetFilter => Filter;
-    internal int GetValue => Value;
 
     ///<summary>
     ///Creates a new condition

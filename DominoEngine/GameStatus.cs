@@ -10,12 +10,10 @@ public class GameStatus<T> where T : IEvaluable {
     public evaluator<T> Evaluator { get; }
 
     private readonly List<PlayData<T>> _moves;
-    private readonly victoryCriteria<T> _criteria;
 
-    public GameStatus(evaluator<T> evaluator, victoryCriteria<T> criteria) {
+    public GameStatus(evaluator<T> evaluator) {
 
         _moves = new List<PlayData<T>>();
-        _criteria = criteria;
         Evaluator = evaluator;
     }
 

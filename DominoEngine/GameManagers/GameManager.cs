@@ -12,8 +12,10 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
     public GameStatus<T> Status { get; }
     private readonly Board<T> _board;
-    private readonly Player<T>[] _players;
-    private readonly Token<T>[] TokenUniverse;
+    protected readonly Player<T>[] _players;
+    protected readonly Stack<Token<T>> _tokenPool;
+    private readonly CriteriaCollection<T> _victoryCheckerCollection;
+    private readonly Powers<T> _powers;
     
     ///<summary>
     ///Returns an array containing each player's name and hand
@@ -32,8 +34,8 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
         }
     }
 
-    private T[]? tokenTypes;
-    private int lastPlayerIndex = -1;
+    private T[]? _tokenTypes;
+    protected int _lastPlayerIndex = -1;
 
     ///<summary>
     ///Constructor of GameManager class
@@ -43,8 +45,19 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
     ///<param name="tokenTypeAmount">The amount of different outputs to be generated</param>
     ///<param name="tokensInHand">The amount of tokens to be dealed to each player</param>
     ///<param name="outputsAmount">The amount of outputs of each token. By default 2</param>
-    ///<param name="evaluator">An ITokenEvaluator implementation to calculate token values. Defaults to an AditiveEvaluator</param>
-    public GameManager(strategy<T>[] strategies, Generator<T> generator, int tokenTypeAmount, int tokensInHand, int outputsAmount = 2, string[]? playerNames = null, evaluator<T>? evaluator = null, victoryCriteria<T>? criteria = null) {
+    ///<param name="playerNames">An array with the players' names. Must have the same size of "strategies". Defaults to "Player #1", "Player #2" and so on</param>
+    ///<param name="evaluator">A function to calculate token values. Defaults to an AditiveEvaluator</param>
+    ///<param name="victoryCheckerCollection">A collection of victory criteria. Defaults to the DefaultCriteria</param>
+    ///<param name="powers">A collection of Power objects representing certain tokens and their actions on play. Defaults to an empty collection</param>
+    public GameManager(strategy<T>[] strategies,
+                       Generator<T> generator,
+                       int tokenTypeAmount,
+                       int tokensInHand,
+                       int outputsAmount = 2,
+                       string[]? playerNames = null,
+                       evaluator<T>? evaluator = null,
+                       CriteriaCollection<T>? victoryCheckerCollection = null,
+                       Powers<T>? powers = null) {
         
         if (playerNames == null) {
 
@@ -58,28 +71,36 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
         }
 
         if (evaluator == null) evaluator = Evaluators<T>.AdditiveEvaluator;
-        if (criteria == null) criteria = VictoryCriteria<T>.DefaultCriteria;
+        if (victoryCheckerCollection == null) _victoryCheckerCollection = new CriteriaCollection<T>( new VictoryChecker<T>(VictoryCriteria<T>.DefaultCriteria) ); 
+        else _victoryCheckerCollection = victoryCheckerCollection;
+
+        this._powers = (powers == null ? new Powers<T>(new Power<T>[0]) : powers);
 
         _players = new Player<T>[strategies.Length];
         _board = new Board<T>();
-        Status = new GameStatus<T>(evaluator, criteria);
+        Status = new GameStatus<T>(evaluator);
         
-        TokenUniverse = GenerateTokens(tokenTypeAmount, generator, outputsAmount);
-        ArrayOperations.RandomShuffle<Token<T>>(TokenUniverse);
+        (_tokenTypes, var tokenUniverse) = TokenGeneration<T>.GenerateTokens(tokenTypeAmount, generator, outputsAmount);
+        ArrayOperations.RandomShuffle<Token<T>>(tokenUniverse);
+        _tokenPool = new Stack<Token<T>>(tokenUniverse);
 
-        if (tokensInHand * strategies.Length > TokenUniverse.Length) {
-            throw new ArgumentException($"Can't deal {tokensInHand} tokens to each of the {strategies.Length} players. There are {TokenUniverse.Length} tokens in total");
+        if (tokensInHand * strategies.Length > _tokenPool.Count) {
+            throw new ArgumentException($"Can't deal {tokensInHand} tokens to each of the {strategies.Length} players. There are {_tokenPool.Count} tokens in total");
         }
 
         for (int i = 0; i < strategies.Length; i++) {
-            _players[i] = new Player<T>(playerNames[i], TokenUniverse[(i * tokensInHand)..(i * tokensInHand + tokensInHand)], strategies[i]);
+
+            _players[i] = new Player<T>(playerNames[i], strategies[i]);
+            for (int j = 0; j < tokensInHand; j++) {
+                _players[i].AddToken(_tokenPool.Pop());
+            }
         }
     }
     
     ///<summary>
     ///Makes the player in turn move. Returns a PlayData object. If the player passed, the token and output will be null
     ///</summary>
-    public PlayData<T> MakeMove() {
+    public WinnerPlayData<T> MakeMove() {
 
         Player<T> currentPlayer = NextPlayer();
 
@@ -88,7 +109,7 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
         if (availableOutputs.Length == 0) {
 
-            availableOutputs = tokenTypes!;
+            availableOutputs = _tokenTypes!;
             firstMove = true;
         }
         var (playerName, token, output) = currentPlayer.Play(availableOutputs, Status);
@@ -101,50 +122,22 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
         if (firstMove) output = default(T);
         Status.AddMove(playerName, token!, output!);
 
-        string[] winners = new string[0]; // = CheckWinners() -> Method that returns all the winner players
+        var effects = _powers.GetEffects(token);
+        foreach (var item in effects) {
+            item(this);
+        }
 
-        return new WinnerPlayData<T>(playerName, token, output, winners);
+        string[]? winners = _victoryCheckerCollection.RunCheck(Status, _players);
+
+        return new WinnerPlayData<T>(playerName, token, output, winners!);
     }
 
     #region Private Methods
 
-    Player<T> NextPlayer() {
+    protected virtual Player<T> NextPlayer() {
         
-        lastPlayerIndex = (lastPlayerIndex + 1) % _players.Length;
-        return _players[lastPlayerIndex];
-    }
-    
-    List<Token<T>>? generatingTokens;
-    HashSet<string>? tokenStrings;
-    Token<T>[] GenerateTokens(int n, Generator<T> generator, int outputsAmount) {
-        
-        generatingTokens = new List<Token<T>>();
-        tokenStrings = new HashSet<string>();
-
-        tokenTypes = generator(n);
-        GenerateAll(new T[outputsAmount], 0);
-
-        return generatingTokens.ToArray();
-    }
-    
-    void GenerateAll(T[] currentOutputs, int pos) {
-
-        if (pos == currentOutputs.Length) {
-
-            Token<T> token = new Token<T>(currentOutputs);
-            if (!tokenStrings!.Contains(token.ToString())) {
-
-                tokenStrings.Add(token.ToString());
-                generatingTokens!.Add(token);
-            }
-            return;
-        }
-
-        for (int i = 0; i < tokenTypes!.Length; i++) {
-            
-            currentOutputs[pos] = tokenTypes[i];
-            GenerateAll(currentOutputs, pos + 1);
-        }
+        _lastPlayerIndex = (_lastPlayerIndex + 1) % _players.Length;
+        return _players[_lastPlayerIndex];
     }
     
     #endregion
