@@ -10,19 +10,9 @@ public interface IEvaluable {
     int Value { get; }
 }
 
-public interface IToken<out T> where T : IEvaluable
-{
-    T[] Outputs { get; }
-    T[] FreeOutputs { get; }
-}
-
 public interface IGameManager<T> where T : IEvaluable {
 
     GameStatus<T> Status { get; }
     (string, Token<T>[])[] PlayersTokens { get; }
-}
-
-public interface IFilter<T>
-{
-    bool ApplyFilter(T Token) ;
+    WinnerPlayData<T> MakeMove();
 }

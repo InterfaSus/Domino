@@ -10,17 +10,11 @@ public class Player<T> where T : IEvaluable
     private readonly string name;
     private strategy<T> playersStrategy;
 
-    public Player(string Name, Token<T>[] Hand, strategy<T> PlayersStrategie)
-    {
-        foreach (var item in Hand)
-        {
-            System.Console.Write(item + " ");
-        }
-        System.Console.WriteLine();
-        
+    public Player(string Name, strategy<T> PlayersStrategy)
+    {        
         this.name = Name;
-        this.hand = new HashSet< Token<T> >(Hand);
-        this.playersStrategy = PlayersStrategie;
+        this.hand = new HashSet<Token<T>>();
+        this.playersStrategy = PlayersStrategy;
     }
 
     ///<summary>
@@ -28,12 +22,16 @@ public class Player<T> where T : IEvaluable
     ///</summary>
     internal Token<T>[] TokensInHand => hand.ToArray();
 
+    internal void AddToken(Token<T> token) {
+        hand.Add(token);
+    }
+
     ///<summary>
     ///Makes the players select a Token to play, and removes it from their Set.
     ///If the player cant play, the token and output returned in the PlayData object will be null
     ///</summary>
     ///<returns> <c>A play data object with info of the played token</c> </returns>
-    public PlayData<T> Play(T[] BoardOutputs, GameStatus<T> status)
+    internal PlayData<T> Play(T[] BoardOutputs, GameStatus<T> status)
     {
         Token<T>[] optionsToPlay = AvailableOptions(hand.ToArray(), BoardOutputs);
 
