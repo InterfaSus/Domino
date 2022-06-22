@@ -29,13 +29,27 @@ if (outputTypes[ind].Item1 == "Number") {
     GameFlow(manag);
 }
 
+else if (outputTypes[ind].Item1 == "Letter") {
+
+    (string, strategy<Letter>)[] strats = Implementations.GetStrategies<Letter>();
+    (string, evaluator<Letter>)[] evals = Implementations.GetEvaluators<Letter>();
+    (string, victoryCriteria<Letter>)[] criteria = Implementations.GetCriteria<Letter>();
+    (string, tokenFilter<Letter>)[] filters = Implementations.GetFilters<Letter>();
+    Type[] managers = Implementations.GetGameManagers<Letter>();
+    (string, Action<IGameManager<Letter>>)[] effects = Implementations.GetEffects<Letter>();
+
+    IGameManager<Letter> manag = CreateGame<Letter>(Letter.Generate, managers); // Juego por defecto para testeo rapido
+    // GameManager<Letter> manag = CreateGame<Letter>(Letter.Generate, managers strats, evals, criteria, filters); // Permite al usuario configurar el juego
+    GameFlow(manag);
+}
+
 IGameManager<T> CreateGame<T>(Generator<T> generator, Type[] managers) where T : IEvaluable {
 
     strategy<T>[] playerStrategies = new strategy<T>[4];
 
-    playerStrategies[0] = Strategies<T>.BiggestOption;
+    playerStrategies[0] = Strategies<T>.PreventOtherPlayersFromPlaying;
     playerStrategies[1] = Strategies<T>.BiggestOption;
-    playerStrategies[2] = Strategies<T>.BiggestOption;
+    playerStrategies[2] = Strategies<T>.PreventOtherPlayersFromPlaying;
     playerStrategies[3] = Strategies<T>.BiggestOption;
 
     VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, null, 230); 
@@ -43,7 +57,7 @@ IGameManager<T> CreateGame<T>(Generator<T> generator, Type[] managers) where T :
     CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T> (VictoryCriteria<T>.DefaultCriteria));
     collection.Add(Checker);
 
-    evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;
+    evaluator<T> ev = Evaluators<T>.FiveMultiplesPriority;
 
     var generic = managers[1].MakeGenericType(typeof(T));
     return (IGameManager<T>)Activator.CreateInstance(generic, new object[] {

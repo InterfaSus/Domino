@@ -23,8 +23,9 @@ public class GameStatus<T> where T : IEvaluable {
     ///<param name="player">The player who made the move</param>
     ///<param name="token">The placed token</param>
     ///<param name="output">The output where the token was placed</param>
-    internal void AddMove(string playerName, Token<T> token, T output) {
-        _moves.Add((new PlayData<T>(playerName, token, output)));
+    internal void AddMove(string playerName, Token<T> token, T output, T[] AvailableOutputs) {
+        
+        _moves.Add((new PlayData<T>(playerName, token, output, AvailableOutputs)));
     }
 
     internal List<PlayData<T>> history => _moves;
