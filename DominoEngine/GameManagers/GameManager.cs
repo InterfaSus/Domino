@@ -120,7 +120,8 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
             else _board.PlaceToken(token, output!);
         };
         if (firstMove) output = default(T);
-        Status.AddMove(playerName, token!, output!);
+                
+        Status.AddMove(playerName, token!, output!, this._board.FreeOutputs);
 
         var effects = _powers.GetEffects(token);
         foreach (var item in effects) {
@@ -129,7 +130,7 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
         string[]? winners = _victoryCheckerCollection.RunCheck(Status, _players);
 
-        return new WinnerPlayData<T>(playerName, token, output, winners!);
+        return new WinnerPlayData<T>(playerName, token, output, winners!, this._board.FreeOutputs);
     }
 
     #region Private Methods
