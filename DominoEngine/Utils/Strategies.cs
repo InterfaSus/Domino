@@ -1,3 +1,4 @@
+using DominoEngine.Algorithms;
 namespace DominoEngine.Utils.Strategies
 {
 
@@ -9,7 +10,7 @@ namespace DominoEngine.Utils.Strategies
         ///<summary>
         ///It choose the most valuable token that its possible to place
         ///</summary>
-        public static (Token<T>, T output) BiggestOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
+        public static Tuple<Token<T>, T> BiggestOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
             Token<T> BiggestToken = Hand[0];
 
@@ -23,26 +24,26 @@ namespace DominoEngine.Utils.Strategies
 
             T outputToPlay = SelectRandomOutput(BiggestToken, AvailableOutputs);
 
-            return (BiggestToken, outputToPlay);
+            return new Tuple<Token<T>, T>(BiggestToken, outputToPlay);
         }
        
         ///<summary>
         ///It choose a random token that its possible to play
         ///</summary>
-        public static (Token<T>, T outputToPlay) RandomOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
+        public static Tuple<Token<T>, T> RandomOption(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
-            Random r = new Random();
+            RandomGen r = new RandomGen();
 
-            Token<T> RandomToken = Hand[r.Next(Hand.Length - 1)];
+            Token<T> RandomToken = Hand[r.Next(Hand.Length)];
             T outputToPlay = SelectRandomOutput(RandomToken, AvailableOutputs);
             
-            return (RandomToken, outputToPlay);
+            return  new Tuple<Token<T>, T>(RandomToken, outputToPlay);
         }
 
         ///<summary>
         ///If a player has pass on a specific Token, that output will have more chances to be played
         ///</summary>
-        public static (Token<T>, T output) PreventOtherPlayersFromPlaying(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
+        public static Tuple<Token<T>, T> PreventOtherPlayersFromPlaying(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs)
         {
             int[] valuesOfTokens = new int[Hand.Length];
 
@@ -69,10 +70,11 @@ namespace DominoEngine.Utils.Strategies
                     for (int k = 0; k < PassOutputs.Length; k++)
                     {
                       if(Hand[i].HasOutput(AvailableOutputs[j]) && 
-                         Hand[i].HasOutput(PassOutputs[k])      && 
-                         Hand[i].HasOutput(AvailableOutputs[j]) != Hand[i].HasOutput(PassOutputs[k]))
-                         {
-                             valuesOfTokens[i] = valuesOfTokens[i]*2;
+                         Hand[i].HasOutput(PassOutputs[k])) {
+                            if (!AvailableOutputs[j].Equals(PassOutputs[k]))
+                                valuesOfTokens[i] *= 2;
+                            else
+                                valuesOfTokens[i] = valuesOfTokens[i] / 2 + valuesOfTokens[i] % 2;
                          }
                         
                     }
@@ -93,7 +95,7 @@ namespace DominoEngine.Utils.Strategies
 
             T outputToPlay = SelectRandomOutput(Hand[biggestValueIndex], AvailableOutputs);
 
-            return (Hand[biggestValueIndex], outputToPlay);
+            return new Tuple<Token<T>, T>(Hand[biggestValueIndex], outputToPlay);
         }
 
         private static T SelectRandomOutput(Token<T> Token, T[] AvailableOutputs)

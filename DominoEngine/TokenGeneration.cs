@@ -18,7 +18,7 @@ internal static class TokenGeneration<T> where T : IEvaluable {
     ///<param name="generator">The generator of the desired type of output</param>
     ///<param name="outputsAmount">The amount of outputs of every token</param>
 
-    internal static (T[], Token<T>[]) GenerateTokens(int n, Generator<T> generator, int outputsAmount) {
+    internal static Tuple<T[], Token<T>[]> GenerateTokens(int n, Generator<T> generator, int outputsAmount) {
 
         generatingTokens = new List<Token<T>>();
         tokenStrings = new HashSet<string>();
@@ -26,7 +26,7 @@ internal static class TokenGeneration<T> where T : IEvaluable {
         tokenTypes = generator(n);
         GenerateAll(new T[outputsAmount], 0);
 
-        return (tokenTypes, generatingTokens.ToArray());
+        return new Tuple<T[], Token<T>[]>(tokenTypes, generatingTokens.ToArray());
     }
 
     static void GenerateAll(T[] currentOutputs, int pos) {

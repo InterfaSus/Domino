@@ -4,7 +4,7 @@ namespace DominoEngine.Utils;
 ///Generic Strategie Delegate
 ///</summary>
 ///<returns> <c>The Token to be played</c> </returns>
-public delegate (Token<T>, T output) strategy<T>(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs) where T : IEvaluable;
+public delegate Tuple<Token<T>, T> strategy<T>(GameStatus<T> status, Token<T>[] Hand, T[] AvailableOutputs) where T : IEvaluable;
 
 ///<summary>
 ///Generates an array with n different objects of type T
