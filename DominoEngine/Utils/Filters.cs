@@ -8,7 +8,7 @@ public static class Filters<T> where T : IEvaluable {
     ///<summary>
     ///Returns true if all the token outputs are equal
     ///</summary>
-    public static bool AllEquals(Token<T> token) {
+    public static bool AllEqual(Token<T> token) {
 
         T? temp = default(T);
         foreach (var item in token.Outputs) {
@@ -24,7 +24,7 @@ public static class Filters<T> where T : IEvaluable {
     ///<summary>
     ///Returns true if all the token outputs are different
     ///</summary>
-    public static bool AllDifferents(Token<T> token) {
+    public static bool AllDifferent(Token<T> token) {
 
         HashSet<T> set = new HashSet<T>();
 

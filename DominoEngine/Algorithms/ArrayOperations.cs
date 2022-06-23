@@ -25,7 +25,7 @@ public static class ArrayOperations {
     ///<param name="array">The array to be shuffled</param>
     public static void RandomShuffle<T>(T[] array) {
 
-        Random r = new Random();
+        RandomGen r = new RandomGen();
         for (int i = 0; i < array.Length; i++) {
 
             int pos = r.Next(array.Length);

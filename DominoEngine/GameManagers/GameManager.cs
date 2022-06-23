@@ -20,13 +20,13 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
     ///<summary>
     ///Returns an array containing each player's name and hand
     ///</summary>
-    public (string, Token<T>[])[] PlayersTokens {
+    public Tuple<string, Token<T>[]>[] PlayersTokens {
         get {
-            (string, Token<T>[])[] result = new (string, Token<T>[])[_players.Length];
+            Tuple<string, Token<T>[]>[] result = new Tuple<string, Token<T>[]>[_players.Length];
 
             int i = 0;
             foreach (var player in _players) {
-                result[i] = (player.Name, player.TokensInHand);
+                result[i] = new Tuple<string, Token<T>[]>(player.Name, player.TokensInHand);
                 i++;
             }
             
@@ -80,12 +80,13 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
         _board = new Board<T>();
         Status = new GameStatus<T>(evaluator);
         
-        (_tokenTypes, var tokenUniverse) = TokenGeneration<T>.GenerateTokens(tokenTypeAmount, generator, outputsAmount);
-        ArrayOperations.RandomShuffle<Token<T>>(tokenUniverse);
-        _tokenPool = new Stack<Token<T>>(tokenUniverse);
+        var generatedResult = TokenGeneration<T>.GenerateTokens(tokenTypeAmount, generator, outputsAmount);
+        _tokenTypes = generatedResult.Item1;
+        ArrayOperations.RandomShuffle<Token<T>>(generatedResult.Item2);
+        _tokenPool = new Stack<Token<T>>(generatedResult.Item2);
 
         if (tokensInHand * strategies.Length > _tokenPool.Count) {
-            throw new ArgumentException($"Can't deal {tokensInHand} tokens to each of the {strategies.Length} players. There are {_tokenPool.Count} tokens in total");
+            throw new ArgumentException("Can't deal " + tokensInHand + " tokens to each of the " + strategies.Length + " players. There are " + _tokenPool.Count + " tokens in total");
         }
 
         for (int i = 0; i < strategies.Length; i++) {
@@ -112,25 +113,26 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
             availableOutputs = _tokenTypes!;
             firstMove = true;
         }
-        var (playerName, token, output) = currentPlayer.Play(availableOutputs, Status);
+        var playData = currentPlayer.Play(availableOutputs, Status);
 
-        if (token != null) {
+        if (playData.Token != null) {
 
-            if (firstMove) _board.PlaceToken(token);
-            else _board.PlaceToken(token, output!);
+            if (firstMove) _board.PlaceToken(playData.Token!);
+            else _board.PlaceToken(playData.Token!, playData.Output!);
         };
+        T? output = playData.Output;
         if (firstMove) output = default(T);
                 
-        Status.AddMove(playerName, token!, output!, this._board.FreeOutputs);
+        Status.AddMove(playData.PlayerName, playData.Token!, output!, this._board.FreeOutputs);
 
-        var effects = _powers.GetEffects(token);
+        var effects = _powers.GetEffects(playData.Token);
         foreach (var item in effects) {
             item(this);
         }
 
         string[]? winners = _victoryCheckerCollection.RunCheck(Status, _players);
 
-        return new WinnerPlayData<T>(playerName, token, output, winners!, this._board.FreeOutputs);
+        return new WinnerPlayData<T>(playData.PlayerName, playData.Token!, output, winners!, this._board.FreeOutputs);
     }
 
     #region Private Methods

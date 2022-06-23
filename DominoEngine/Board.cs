@@ -7,14 +7,11 @@ namespace DominoEngine;
 public class Board<T> where T : IEvaluable {
 
     private readonly List<Token<T>> _placedTokens;
-    private readonly List<(Token<T>, Token<T>)> _graph; // Currently the graph has no real use
-
     private Token<T>? firstToken;
 
     public Board() {
 
         _placedTokens = new List<Token<T>>();
-        _graph = new List<(Token<T>, Token<T>)>();
     }
 
     ///<summary>
@@ -75,9 +72,8 @@ public class Board<T> where T : IEvaluable {
 
                 placedToken.PlaceTokenOn(output);
                 token.PlaceTokenOn(output);
-
+                
                 _placedTokens.Add(token);
-                _graph.Add((token, placedToken));
 
                 return;
             }

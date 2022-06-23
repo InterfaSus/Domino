@@ -37,7 +37,7 @@ public class Player<T> where T : IEvaluable
 
         if(optionsToPlay.Length == 0) return new PlayData<T>(this.Name, AvailableOutputs: BoardOutputs);
 
-        (Token<T>, T) Move = playersStrategy(status, optionsToPlay, BoardOutputs);
+        var Move = playersStrategy(status, optionsToPlay, BoardOutputs);
         hand.Remove(Move.Item1);
 
         return new PlayData<T>(this.Name, Move.Item1, Move.Item2, BoardOutputs);
