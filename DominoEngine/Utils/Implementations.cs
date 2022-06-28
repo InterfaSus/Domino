@@ -1,4 +1,3 @@
-using System.Reflection;
 using DominoEngine.Utils.Effects;
 using DominoEngine.Utils.Evaluators;
 using DominoEngine.Utils.Filters;
@@ -81,11 +80,11 @@ public static class Implementations {
     ///<summary>
     /// Returns every class implementing IGameManager
     ///</summary>
-    public static Type[] GetGameManagers() {
+    public static Tuple<string, Type>[] GetGameManagers() {
 
-        return new Type[] {
-            typeof(GameManager<>),
-            typeof(GameManagerDominuno<>)
+        return new Tuple<string, Type>[] {
+            new Tuple<string, Type>("Standard", typeof(GameManager<>)),
+            new Tuple<string, Type>("Dominuno", typeof(GameManagerDominuno<>))
         };
     }
 }

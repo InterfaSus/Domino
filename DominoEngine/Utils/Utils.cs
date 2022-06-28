@@ -35,6 +35,12 @@ public class CriteriaCollection<T> where T : IEvaluable
         CheckersList.Add(v);
     }
 
+    public CriteriaCollection(VictoryChecker<T>[] v)
+    {   
+        if (v.Length == 0) throw new ArgumentException("At least one victory checker must be passed");
+        CheckersList.AddRange(v);
+    }
+
     public void Add(VictoryChecker<T> v){ CheckersList.Add(v); }
 
     public string[]? RunCheck(GameStatus<T> gameStatus, Player<T>[] players)

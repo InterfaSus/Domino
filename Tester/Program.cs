@@ -17,7 +17,7 @@ for (int i = 0; i < outputTypes.Length; i++) {
 }
 int ind  = int.Parse((Console.ReadLine()!));
 
-    Type[] managers = Implementations.GetGameManagers();
+    Tuple<string, Type>[] managers = Implementations.GetGameManagers();
 
 if (outputTypes[ind] == "Number") {
 
@@ -44,7 +44,7 @@ else if (outputTypes[ind] == "Letter") {
     GameFlow(manag);
 }
 
-IGameManager<T> CreateGame<T>(Generator<T> generator, Type[] managers) where T : IEvaluable {
+IGameManager<T> CreateGame<T>(Generator<T> generator, Tuple<string, Type>[] managers) where T : IEvaluable {
 
     strategy<T>[] playerStrategies = new strategy<T>[4];
 
@@ -53,14 +53,14 @@ IGameManager<T> CreateGame<T>(Generator<T> generator, Type[] managers) where T :
     playerStrategies[2] = Strategies<T>.PreventOtherPlayersFromPlaying;
     playerStrategies[3] = Strategies<T>.PreventOtherPlayersFromPlaying;
 
-    VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, null, 230); 
+    VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 230); 
 
     CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T> (VictoryCriteria<T>.DefaultCriteria));
     collection.Add(Checker);
 
     evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;
 
-    var generic = managers[0].MakeGenericType(typeof(T));
+    var generic = managers[0].Item2.MakeGenericType(typeof(T));
     return (IGameManager<T>)Activator.CreateInstance(generic, new object[] {
         playerStrategies, // Strategies
         generator, // Generator

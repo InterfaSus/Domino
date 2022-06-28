@@ -59,7 +59,7 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///Surpass Sum victory criteria
         ///</summary>
         ///<returns> The first player that surpass the value of the condition win</returns>
-        public static string[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value = 0)
+        public static string[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value)
         {
             int[] Scores = new int[Players.Length];
             int index = 0;   
