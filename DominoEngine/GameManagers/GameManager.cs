@@ -18,6 +18,11 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
     private readonly Powers<T> _powers;
     
     ///<summary>
+    ///Returns an array containing the free outputs on the board with the amount of times each one appears
+    ///</summary>
+    public KeyValuePair<T, int>[] FreeOutputsAmount { get => _board.OutputsAmount; }
+
+    ///<summary>
     ///Returns an array containing each player's name and hand
     ///</summary>
     public Tuple<string, Token<T>[]>[] PlayersTokens {

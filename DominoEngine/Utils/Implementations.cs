@@ -1,4 +1,3 @@
-using System.Reflection;
 using DominoEngine.Utils.Effects;
 using DominoEngine.Utils.Evaluators;
 using DominoEngine.Utils.Filters;
@@ -67,6 +66,9 @@ public static class Implementations {
             new Tuple<string, Action<IGameManager<T>>>("Dominuno Skip", Effects<T>.DominunoSkip),
             new Tuple<string, Action<IGameManager<T>>>("Dominuno Flip", Effects<T>.DominunoFlip),
             new Tuple<string, Action<IGameManager<T>>>("Dominuno Give Two Tokens", Effects<T>.DominunoGiveTwoTokens),
+
+            new Tuple<string, Action<IGameManager<T>>>("Turntwist Play Again", Effects<T>.TurntwistPlayAgain),
+            new Tuple<string, Action<IGameManager<T>>>("Turntwist Random Turn", Effects<T>.TurntwistRandomTurn),
         };
     }
 
@@ -81,11 +83,12 @@ public static class Implementations {
     ///<summary>
     /// Returns every class implementing IGameManager
     ///</summary>
-    public static Type[] GetGameManagers() {
+    public static Tuple<string, Type>[] GetGameManagers() {
 
-        return new Type[] {
-            typeof(GameManager<>),
-            typeof(GameManagerDominuno<>)
+        return new Tuple<string, Type>[] {
+            new Tuple<string, Type>("Standard", typeof(GameManager<>)),
+            new Tuple<string, Type>("Dominuno", typeof(GameManagerDominuno<>)),
+            new Tuple<string, Type>("Turntwist", typeof(GameManagerTurntwist<>)),
         };
     }
 }

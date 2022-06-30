@@ -5,6 +5,8 @@ namespace DominoEngine.Utils.Effects;
 ///</summary>
 public static class Effects<T> where T : IEvaluable {
 
+    #region Dominuno Effects
+
     ///<summary>
     /// Makes the next player skip its turn
     ///</summary>
@@ -13,7 +15,7 @@ public static class Effects<T> where T : IEvaluable {
         if (manager is GameManagerDominuno<T> mg) {
             mg.SkipPlayer();
         }
-        else Error(manager.GetType().Name, "SkipPlayer");
+        else Error("SkipPlayer");
     }
 
     ///<summary>
@@ -24,7 +26,7 @@ public static class Effects<T> where T : IEvaluable {
         if (manager is GameManagerDominuno<T> mg) {
             mg.FlipOrder();
         }
-        else Error(manager.GetType().Name, "FlipOrder");
+        else Error("FlipOrder");
     }
 
     ///<summary>
@@ -35,10 +37,38 @@ public static class Effects<T> where T : IEvaluable {
         if (manager is GameManagerDominuno<T> mg) {
             mg.GiveToken(2);
         }
-        else Error(manager.GetType().Name, "GiveToken(int)");
+        else Error("GiveToken(int)");
     }
 
-    static void Error(string manager, string method) {
-        throw new ArgumentException("Mismatch between IGameManager implementation and effect. " + manager + " does not contain the method " + method);
+    #endregion
+
+    #region Turntiwst Effects
+
+    ///<summary>
+    /// Makes the player move again
+    ///</summary>
+    public static void TurntwistPlayAgain(IGameManager<T> manager) {
+
+        if (manager is GameManagerTurntwist<T> mg) {
+            mg.PlayAgain();
+        }
+        else Error("PlayAgain");
+    }
+
+    ///<summary>
+    /// The next next turn will be for a random player
+    ///</summary>
+    public static void TurntwistRandomTurn(IGameManager<T> manager) {
+
+        if (manager is GameManagerTurntwist<T> mg) {
+            mg.RandomTurn();
+        }
+        else Error("RandomTurn");
+    }
+
+    #endregion
+
+    static void Error(string method) {
+        throw new ArgumentException("Mismatch between IGameManager implementation and effect. Manager does not contain the method " + method);
     }
 }
