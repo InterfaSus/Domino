@@ -41,8 +41,8 @@ public class GameFlow : MonoBehaviour
 
         string msg = playData.PlayerName + ": ";
         if (playData.Token == null) msg += "Pass";
-        else msg += playData.Token;
-        
+        else msg += playData.Token + (playData.Output != null ? "(" + playData.Output.ToString() + ")" : "");
+
         _history.AddLog(msg);
         PrintHands<T>();
         FindObjectOfType<OutputsShow>().RenderOutputs<T>(manager.FreeOutputsAmount);
@@ -81,10 +81,10 @@ public class GameFlow : MonoBehaviour
             {
                 _history.AddLog(playData.WinnersName[j] + " won!");
             }
-            _gameEnded = true;
-            Autoplaying = false;
-            ControlPanel.SetActive(false);
         }
+        _gameEnded = true;
+        Autoplaying = false;
+        ControlPanel.SetActive(false);
     }
 
     void PrintHands<T>() where T : IEvaluable {
