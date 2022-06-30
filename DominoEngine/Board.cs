@@ -35,6 +35,27 @@ public class Board<T> where T : IEvaluable {
     }
 
     ///<summary>
+    ///Returns the available outputs with the amount of times each one appears
+    ///</summary>
+    public KeyValuePair<T, int>[] OutputsAmount {
+        get {
+            Dictionary<T, int> dict = new Dictionary<T, int>();
+
+            foreach (var token in _placedTokens) {
+
+                T[] tokenFreeOutputs = token.FreeOutputs;
+                foreach (var head in tokenFreeOutputs) {
+                    
+                    if (dict.ContainsKey(head)) dict[head]++;
+                    else dict.Add(head, 1);
+                }   
+            }
+
+            return dict.ToArray();
+        }
+    }
+
+    ///<summary>
     ///Tells if the given output is free on the board or not
     ///</summary>
     ///<param name="output">The output to check</param>

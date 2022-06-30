@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Power Name
+  - Output Display
   layers:
   - Default
   - TransparentFX

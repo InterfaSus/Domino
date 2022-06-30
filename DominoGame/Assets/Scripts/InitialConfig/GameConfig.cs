@@ -7,6 +7,7 @@ using TMPro;
 
 using DominoEngine;
 using DominoEngine.Utils;
+using DominoEngine.Algorithms;
 
 public class GameConfig : MonoBehaviour
 {   

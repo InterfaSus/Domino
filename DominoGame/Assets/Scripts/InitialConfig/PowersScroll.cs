@@ -20,11 +20,12 @@ public class PowersScroll : MonoBehaviour
 
             string[] content = GetComponent<ScrollContentController>().Currents;
             Toggle[] marks = GetComponentsInChildren<Toggle>();
+            GameObject[] names = GameObject.FindGameObjectsWithTag("Power Name");
 
             for (int i = 0; i < content.Length; i++) {
 
                 if (marks[i].isOn) {
-                    result.Add(new Tuple<string, string>(_powers[i], content[i]));
+                    result.Add(new Tuple<string, string>(ManagerType.Current + " " + names[i].GetComponent<TextMeshProUGUI>().text, content[i]));
                 }
             }
 
@@ -52,8 +53,8 @@ public class PowersScroll : MonoBehaviour
         }
 
         GameObject[] powerTextField = GameObject.FindGameObjectsWithTag("Power Name");
-        for (int i = 0; i < validPowers.Count; i++) {
-            powerTextField[i].GetComponent<TextMeshProUGUI>().text = validPowers[i];
+        for (int i = powerTextField.Length - 1, j = validPowers.Count - 1; i >= powerTextField.Length - validPowers.Count; i--, j--) {
+            powerTextField[i].GetComponent<TextMeshProUGUI>().text = validPowers[j];
         }
     }
 

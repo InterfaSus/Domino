@@ -60,7 +60,7 @@ IGameManager<T> CreateGame<T>(Generator<T> generator, Tuple<string, Type>[] mana
 
     evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;
 
-    var generic = managers[0].Item2.MakeGenericType(typeof(T));
+    var generic = typeof(GameManagerTurntwist<>).MakeGenericType(typeof(T));
     return (IGameManager<T>)Activator.CreateInstance(generic, new object[] {
         playerStrategies, // Strategies
         generator, // Generator
@@ -71,7 +71,7 @@ IGameManager<T> CreateGame<T>(Generator<T> generator, Tuple<string, Type>[] mana
         ev, // Evaluator
         collection, // VictoryCheckerCollection
         new Powers<T>(new Power<T>[]{ 
-            // new Power<T>(Filters<T>.AllDifferent, Effects<T>.DominunoSkip),
+            new Power<T>(Filters<T>.AllDifferent, Effects<T>.TurntwistRandomTurn),
             // new Power<T>(Filters<T>.SameParity, Effects<T>.DominunoFlip),
             // new Power<T>(Filters<T>.AllEqual, Effects<T>.DominunoGiveTwoTokens)
         }), // Powers
