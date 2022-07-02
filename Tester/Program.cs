@@ -4,47 +4,36 @@ using DominoEngine.Utils.Effects;
 using DominoEngine.Utils.Evaluators;
 using DominoEngine.Utils.Filters;
 using DominoEngine.Utils.Strategies;
-using DominoEngine.Utils.TokenTypes;
 using DominoEngine.Utils.VictoryCriteria;
 
-using DominoEngine.Algorithms;
+Tuple<string, Generator<IEvaluable>>[] outputTypes = Implementations.GetOutputTypes();
 
-string[] outputTypes = Implementations.GetOutputTypeNames();
-
-System.Console.Write("Available token output types: ");
+System.Console.WriteLine("Available token output types: ");
 for (int i = 0; i < outputTypes.Length; i++) {
-    System.Console.WriteLine(i + " - " + outputTypes[i]);
+    System.Console.WriteLine(i + " - " + outputTypes[i].Item1);
 }
 int ind  = int.Parse((Console.ReadLine()!));
 
-    Tuple<string, Type>[] managers = Implementations.GetGameManagers();
+// Generator<IEvaluable>[] generators = new Generator<IEvaluable>[] {Number.Generate, Letter.Generate};
 
-if (outputTypes[ind] == "Number") {
+GetImplementations(outputTypes[ind].Item2);
 
-    Tuple<string, strategy<Number>>[] strats = Implementations.GetStrategies<Number>();
-    Tuple<string, evaluator<Number>>[] evals = Implementations.GetEvaluators<Number>();
-    Tuple<string, victoryCriteria<Number>>[] criteria = Implementations.GetCriteria<Number>();
-    Tuple<string, tokenFilter<Number>>[] filters = Implementations.GetFilters<Number>();
-    Tuple<string, Action<IGameManager<Number>>>[] effects = Implementations.GetEffects<Number>();
+// if (outputTypes[ind] == "Number") GetImplementations(Number.Generate);
+// else if (outputTypes[ind] == "Letter") GetImplementations(Letter.Generate);
 
-    IGameManager<Number> manag = CreateGame<Number>(Number.Generate, managers); // Juego por defecto para testeo rapido
-    // GameManager<Number> manag = CreateGame<Number>(Number.Generate, managers strats, evals, criteria, filters); // Permite al usuario configurar el juego
-    GameFlow(manag);
-}
-else if (outputTypes[ind] == "Letter") {
+void GetImplementations<T>(Generator<T> generator) where T : IEvaluable {
 
-    Tuple<string, strategy<Letter>>[] strats = Implementations.GetStrategies<Letter>();
-    Tuple<string, evaluator<Letter>>[] evals = Implementations.GetEvaluators<Letter>();
-    Tuple<string, victoryCriteria<Letter>>[] criteria = Implementations.GetCriteria<Letter>();
-    Tuple<string, tokenFilter<Letter>>[] filters = Implementations.GetFilters<Letter>();
-    Tuple<string, Action<IGameManager<Letter>>>[] effects = Implementations.GetEffects<Letter>();
+    Tuple<string, strategy<T>>[] strats = Implementations.GetStrategies<T>();
+    Tuple<string, evaluator<T>>[] evals = Implementations.GetEvaluators<T>();
+    Tuple<string, victoryCriteria<T>>[] criteria = Implementations.GetCriteria<T>();
+    Tuple<string, tokenFilter<T>>[] filters = Implementations.GetFilters<T>();
+    Tuple<string, Action<EffectsExecution<T>>>[] effects = Implementations.GetEffects<T>();
 
-    IGameManager<Letter> manag = CreateGame<Letter>(Letter.Generate, managers); // Juego por defecto para testeo rapido
-    // GameManager<Letter> manag = CreateGame<Letter>(Letter.Generate, managers strats, evals, criteria, filters); // Permite al usuario configurar el juego
+    GameManager<T> manag = CreateGame<T>(generator); // Juego por defecto para testeo rapido
     GameFlow(manag);
 }
 
-IGameManager<T> CreateGame<T>(Generator<T> generator, Tuple<string, Type>[] managers) where T : IEvaluable {
+GameManager<T> CreateGame<T>(Generator<T> generator) where T : IEvaluable {
 
     strategy<T>[] playerStrategies = new strategy<T>[4];
 
@@ -53,32 +42,29 @@ IGameManager<T> CreateGame<T>(Generator<T> generator, Tuple<string, Type>[] mana
     playerStrategies[2] = Strategies<T>.PreventOtherPlayersFromPlaying;
     playerStrategies[3] = Strategies<T>.PreventOtherPlayersFromPlaying;
 
-    VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 230); 
+    VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 30); 
 
-    CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T> (VictoryCriteria<T>.DefaultCriteria));
-    collection.Add(Checker);
+    CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T>(VictoryCriteria<T>.EndAtXPass, 4));
+    // collection.Add(Checker);
 
     evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;
 
-    var generic = typeof(GameManagerTurntwist<>).MakeGenericType(typeof(T));
-    return (IGameManager<T>)Activator.CreateInstance(generic, new object[] {
-        playerStrategies, // Strategies
-        generator, // Generator
-        7, // tokenTypeAmount
-        7, // tokensInHand
-        2, // outputsAmount
-        new string[]{"Juan", "El Pepe", "Ete sech", "Potaxio"}, // playerNames
-        ev, // Evaluator
-        collection, // VictoryCheckerCollection
-        new Powers<T>(new Power<T>[]{ 
-            new Power<T>(Filters<T>.AllDifferent, Effects<T>.TurntwistRandomTurn),
+    return new GameManager<T>(
+        playerStrategies,
+        generator,
+        tokenTypeAmount: 7,
+        tokensInHand: 7,
+        outputsAmount: 2,
+        evaluator: ev,
+        victoryCheckerCollection: collection,
+        powers: new Powers<T>(new Power<T>[]{ 
+            new Power<T>(Filters<T>.AllDifferent, Effects<T>.RandomTurn),
             // new Power<T>(Filters<T>.SameParity, Effects<T>.DominunoFlip),
             // new Power<T>(Filters<T>.AllEqual, Effects<T>.DominunoGiveTwoTokens)
-        }), // Powers
-    })!;
+        }));
 }
 
-void GameFlow<T>(IGameManager<T> manager) where T : IEvaluable {
+void GameFlow<T>(GameManager<T> manager) where T : IEvaluable {
 
     System.Console.WriteLine("✅ Tokens dealed");
     PrintHands(manager);
@@ -106,7 +92,7 @@ void GameFlow<T>(IGameManager<T> manager) where T : IEvaluable {
     PrintHands(manager);
 }
 
-void PrintHands<T>(IGameManager<T> manager) where T : IEvaluable {
+void PrintHands<T>(GameManager<T> manager) where T : IEvaluable {
 
         var finalHands = manager.PlayersTokens;
 

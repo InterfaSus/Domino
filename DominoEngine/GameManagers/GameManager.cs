@@ -8,14 +8,16 @@ namespace DominoEngine;
 ///<summary>
 ///An instance of this class represents a game. It controls everithing it happens
 ///</summary>
-public class GameManager<T> : IGameManager<T> where T : IEvaluable {
+public class GameManager<T> where T : IEvaluable {
 
     public GameStatus<T> Status { get; }
+
     private readonly Board<T> _board;
-    protected readonly Player<T>[] _players;
-    protected readonly Stack<Token<T>> _tokenPool;
+    internal readonly Player<T>[] _players;
+    internal readonly Stack<Token<T>> _tokenPool;
     private readonly CriteriaCollection<T> _victoryCheckerCollection;
     private readonly Powers<T> _powers;
+    private readonly EffectsExecution<T> _effectsExecutor;
     
     ///<summary>
     ///Returns an array containing the free outputs on the board with the amount of times each one appears
@@ -39,8 +41,8 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
         }
     }
 
+    internal int _lastPlayerIndex { get; private set; } = -1;
     private T[]? _tokenTypes;
-    protected int _lastPlayerIndex = -1;
 
     ///<summary>
     ///Constructor of GameManager class
@@ -101,6 +103,8 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
                 _players[i].AddToken(_tokenPool.Pop());
             }
         }
+
+        _effectsExecutor = new EffectsExecution<T>(this);
     }
     
     ///<summary>
@@ -132,21 +136,17 @@ public class GameManager<T> : IGameManager<T> where T : IEvaluable {
 
         var effects = _powers.GetEffects(playData.Token);
         foreach (var item in effects) {
-            item(this);
+            item(_effectsExecutor);
         }
 
         string[]? winners = _victoryCheckerCollection.RunCheck(Status, _players);
 
         return new WinnerPlayData<T>(playData.PlayerName, playData.Token!, output, winners!, this._board.FreeOutputs);
     }
-
-    #region Private Methods
-
-    protected virtual Player<T> NextPlayer() {
+    
+    internal Player<T> NextPlayer() {
         
         _lastPlayerIndex = (_lastPlayerIndex + 1) % _players.Length;
         return _players[_lastPlayerIndex];
     }
-    
-    #endregion
 }
