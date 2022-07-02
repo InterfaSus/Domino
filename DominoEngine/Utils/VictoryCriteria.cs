@@ -61,9 +61,6 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///<returns> The first player that surpass the value of the condition win</returns>
         public static string[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value)
         {
-            int[] Scores = new int[Players.Length];
-            int index = 0;   
-           
             List<PlayData<T>> history = gameStatus.history;
             evaluator<T> evaluator = gameStatus.Evaluator;
 
@@ -71,15 +68,13 @@ namespace DominoEngine.Utils.VictoryCriteria
                 return new string[0];
             }
 
-            for (int i = 0; i < history.Count; i++)
-            {
-                if(index >= Players.Length) index = 0;
-                
-                Scores[index] += evaluator(history[i].Token);
-                
-                if(Scores[index] >= Value) return new string[] {Players[index].Name};
+            Dictionary<string, int> scores = new Dictionary<string, int>();
 
-                index++;
+            for (int i = 0; i < history.Count; i++)
+            {   
+                if (!scores.ContainsKey(history[i].PlayerName)) scores.Add(history[i].PlayerName, 0);
+                scores[history[i].PlayerName] += evaluator(history[i].Token);
+                if(scores[history[i].PlayerName] >= Value) return new string[] { history[i].PlayerName };
             }
 
             return null;
@@ -87,11 +82,11 @@ namespace DominoEngine.Utils.VictoryCriteria
 
 #region Utils
 
-    private static bool NoTokensLeft( Player<T> Player)
+        private static bool NoTokensLeft( Player<T> Player)
         {
             return Player.TokensInHand.Length == 0;
         }
-    private static bool NoOneCanPlay( List<PlayData<T>> history, int playersNum)
+        private static bool NoOneCanPlay( List<PlayData<T>> history, int playersNum)
         {
             for (int i = history.Count-1; i >= history.Count - playersNum; i--)
             {

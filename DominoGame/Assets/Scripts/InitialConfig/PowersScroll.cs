@@ -8,8 +8,6 @@ using TMPro;
 public class PowersScroll : MonoBehaviour
 {   
 
-    public SelectorController ManagerType;
-
     private string[] _powers;
     private string[] _filters;
 
@@ -25,7 +23,7 @@ public class PowersScroll : MonoBehaviour
             for (int i = 0; i < content.Length; i++) {
 
                 if (marks[i].isOn) {
-                    result.Add(new Tuple<string, string>(ManagerType.Current + " " + names[i].GetComponent<TextMeshProUGUI>().text, content[i]));
+                    result.Add(new Tuple<string, string>(names[i].GetComponent<TextMeshProUGUI>().text, content[i]));
                 }
             }
 
@@ -45,22 +43,13 @@ public class PowersScroll : MonoBehaviour
 
         for (int i = 0; i < powers.Length; i++) {
 
-            if (powers[i].Contains(ManagerType.Current)) {
-                
-                GetComponent<ScrollContentController>().AddElement();
-                validPowers.Add(powers[i].Substring(ManagerType.Current.Length + 1, powers[i].Length - ManagerType.Current.Length - 1));
-            }
+            GetComponent<ScrollContentController>().AddElement();
+            validPowers.Add(powers[i]);
         }
 
         GameObject[] powerTextField = GameObject.FindGameObjectsWithTag("Power Name");
         for (int i = powerTextField.Length - 1, j = validPowers.Count - 1; i >= powerTextField.Length - validPowers.Count; i--, j--) {
             powerTextField[i].GetComponent<TextMeshProUGUI>().text = validPowers[j];
         }
-    }
-
-    public void MoveManagerType(int dir) {
-
-        ManagerType.MoveType(dir);
-        GetImplementationData(_powers, _filters);
     }
 }

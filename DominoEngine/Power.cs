@@ -8,9 +8,9 @@ namespace DominoEngine;
 public class Power<T> where T : IEvaluable {
 
     public tokenFilter<T> Filter { get; private set; }
-    public Action<IGameManager<T>> Effect { get; private set; }
+    public Action<EffectsExecution<T>> Effect { get; private set; }
 
-    public Power(tokenFilter<T> filter, Action<IGameManager<T>> effect) {
+    public Power(tokenFilter<T> filter, Action<EffectsExecution<T>> effect) {
         this.Filter = filter;
         this.Effect = effect;
     }
@@ -31,9 +31,9 @@ public class Powers<T> where T : IEvaluable {
     /// Receives a token and returns an array of Actions indicating the powers triggered by the token
     ///</summary>
     ///<param name="token">The token to be analyzed</param>
-    public Action<IGameManager<T>>[] GetEffects(Token<T>? token) {
+    public Action<EffectsExecution<T>>[] GetEffects(Token<T>? token) {
 
-        List<Action<IGameManager<T>>> result = new List<Action<IGameManager<T>>>();
+        List<Action<EffectsExecution<T>>> result = new List<Action<EffectsExecution<T>>>();
 
         if (token == null) return result.ToArray();
 

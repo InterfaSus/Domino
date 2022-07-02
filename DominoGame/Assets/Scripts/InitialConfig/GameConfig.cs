@@ -7,7 +7,6 @@ using TMPro;
 
 using DominoEngine;
 using DominoEngine.Utils;
-using DominoEngine.Algorithms;
 
 public class GameConfig : MonoBehaviour
 {   
@@ -18,7 +17,6 @@ public class GameConfig : MonoBehaviour
     public GameObject ConfigPanel;
     public SelectorController Evaluators;
     public ScrollContentController PlayersOptionsContainer;
-    public SelectorController GameManagers;
     public PowersScroll ManagersPowerFilters;
     public ScrollContentController VictoryContainer;
     public GameObject ErrorPanel;
@@ -36,18 +34,16 @@ public class GameConfig : MonoBehaviour
         ConfigPanel.SetActive(true);
 
         this.generator = generator;
-        managers = Implementations.GetGameManagers();
         strats = Implementations.GetStrategies<T>();
         evals = Implementations.GetEvaluators<T>();
         criteria = Implementations.GetCriteria<T>();
         filters = Implementations.GetFilters<T>();
         effects = Implementations.GetEffects<T>();
 
-        Evaluators.UpdateNames(GetNames<evaluator<T>>(evals));
-        PlayersOptionsContainer.UpdateImplementations(GetNames<strategy<T>>(strats));
-        GameManagers.UpdateNames(GetNames<Type>(managers));
-        ManagersPowerFilters.GetImplementationData(GetNames<Action<IGameManager<T>>>(effects), GetNames<tokenFilter<T>>(filters));
-        VictoryContainer.UpdateImplementations(GetNames<victoryCriteria<T>>(criteria));
+        Evaluators.UpdateNames(TypesNameHandler.GetNames<evaluator<T>>(evals));
+        PlayersOptionsContainer.UpdateImplementations(TypesNameHandler.GetNames<strategy<T>>(strats));
+        ManagersPowerFilters.GetImplementationData(TypesNameHandler.GetNames<Action<EffectsExecution<T>>>(effects), TypesNameHandler.GetNames<tokenFilter<T>>(filters));
+        VictoryContainer.UpdateImplementations(TypesNameHandler.GetNames<victoryCriteria<T>>(criteria));
 
         FindObjectOfType<AcceptButton>().AddHandler<T>();
     }
@@ -71,7 +67,7 @@ public class GameConfig : MonoBehaviour
         }
 
         // Getting evaluator
-        evaluator<T> evaluator = ImplementationByName<evaluator<T>>(evals, Evaluators.Current);
+        evaluator<T> evaluator = TypesNameHandler.ImplementationByName<evaluator<T>>(evals, Evaluators.Current);
 
         // Getting player strategies
         string[] playerStrategies = PlayersOptionsContainer.Currents;
@@ -83,7 +79,7 @@ public class GameConfig : MonoBehaviour
 
         strategy<T>[] strategies = new strategy<T>[playerStrategies.Length];
         for (int i = 0; i < playerStrategies.Length; i++) {
-            strategies[i] = ImplementationByName<strategy<T>>(strats, playerStrategies[i]);
+            strategies[i] = TypesNameHandler.ImplementationByName<strategy<T>>(strats, playerStrategies[i]);
         }
 
         // Getting player names
@@ -95,17 +91,14 @@ public class GameConfig : MonoBehaviour
             playerNames[i] = (nameInputs[i].text != "" ? nameInputs[i].text : "Player #" + (i + 1));
         }
 
-        // Getting game manager
-        Type gameManager = ImplementationByName<Type>(managers, GameManagers.Current);
-
         // Getting powers
         Tuple<string, string>[] powers = ManagersPowerFilters.GetPowers;
         Power<T>[] powerCollection = new Power<T>[powers.Length];
 
         for (int i = 0; i < powers.Length; i++) {
             
-            var currentEffect = ImplementationByName<Action<IGameManager<T>>>(effects, powers[i].Item1);
-            var currentFilter = ImplementationByName<tokenFilter<T>>(filters, powers[i].Item2);
+            var currentEffect = TypesNameHandler.ImplementationByName<Action<EffectsExecution<T>>>(effects, powers[i].Item1);
+            var currentFilter = TypesNameHandler.ImplementationByName<tokenFilter<T>>(filters, powers[i].Item2);
             powerCollection[i] = new Power<T>(currentFilter, currentEffect);
         }
 
@@ -121,25 +114,24 @@ public class GameConfig : MonoBehaviour
 
         for (int i = 0; i < criteriaNames.Length; i++) {
 
-            var currentCriteria = ImplementationByName<victoryCriteria<T>>(criteria, criteriaNames[i]);
+            var currentCriteria = TypesNameHandler.ImplementationByName<victoryCriteria<T>>(criteria, criteriaNames[i]);
             var currentValue = (inputValues[i].text != "" ? int.Parse(inputValues[i].text) : 0);
             victoryCheckers[i] = new VictoryChecker<T>(currentCriteria, currentValue);
         }
 
         try {
-            // Intantiating Game Manager
-            var genericManager = gameManager.MakeGenericType(typeof(T));
-            var managerInstance = (IGameManager<T>)Activator.CreateInstance(genericManager, new object[] {
-                strategies, // Strategies
-                (Generator<T>)generator, // Generator
-                amountOfOutputTypes, // tokenTypeAmount
-                tokensPerHand, // tokensInHand
-                outputsPerToken, // outputsAmount
-                playerNames, // playerNames
-                evaluator, // Evaluator OK
-                new CriteriaCollection<T>(victoryCheckers), // VictoryCheckerCollection
-                new Powers<T>(powerCollection), // Powers
-            });
+            // Instantiating Game Manager
+            GameManager<T> managerInstance = new GameManager<T>(
+                strategies: strategies,
+                generator: (Generator<T>)generator,
+                tokenTypeAmount: amountOfOutputTypes,
+                tokensInHand: tokensPerHand,
+                outputsAmount: outputsPerToken,
+                playerNames: playerNames,
+                evaluator: evaluator,
+                victoryCheckerCollection: new CriteriaCollection<T>(victoryCheckers),
+                powers: new Powers<T>(powerCollection)
+            );
 
             ConfigPanel.SetActive(false);
             GetComponent<GameFlow>().StartGame<T>(managerInstance);
@@ -149,31 +141,6 @@ public class GameConfig : MonoBehaviour
                 ShowInputError("Insuficient tokens to deal to each player");
             }
         }
-    }
-
-    private string[] GetNames<T>(object[] tuples) {
-
-        List<string> result = new List<string>();
-        var collection = (Tuple<string, T>[])tuples;
-
-        foreach (var item in collection) {
-            result.Add(item.Item1);
-        }
-
-        return result.ToArray();
-    }
-
-    private T ImplementationByName<T>(object[] tuple, string name) {
-
-        if (name == "None") return default(T);
-
-        var collection = (Tuple<string, T>[])tuple;
-
-        foreach (var item in collection) {
-            if(item.Item1 == name) return item.Item2;
-        }
-
-        return default(T);
     }
 
     private void ShowInputError(string message) {

@@ -9,7 +9,7 @@ public delegate Tuple<Token<T>, T> strategy<T>(GameStatus<T> status, Token<T>[] 
 ///<summary>
 ///Generates an array with n different objects of type T
 ///</summary>
-public delegate T[] Generator<T>(int n);
+public delegate T[] Generator<out T>(int n);
 
 ///<summary>
 ///Generic Evaluator Delegate

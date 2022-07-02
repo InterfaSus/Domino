@@ -2,6 +2,7 @@ using DominoEngine.Utils.Effects;
 using DominoEngine.Utils.Evaluators;
 using DominoEngine.Utils.Filters;
 using DominoEngine.Utils.Strategies;
+using DominoEngine.Utils.TokenTypes;
 using DominoEngine.Utils.VictoryCriteria;
 
 namespace DominoEngine.Utils;
@@ -60,35 +61,24 @@ public static class Implementations {
     ///<summary>
     /// Returns every delegate representing an effect with its name
     ///</summary>
-    public static Tuple<string, Action<IGameManager<T>>>[] GetEffects<T>() where T : IEvaluable {
+    public static Tuple<string, Action<EffectsExecution<T>>>[] GetEffects<T>() where T : IEvaluable {
 
-        return new Tuple<string, Action<IGameManager<T>>>[] {
-            new Tuple<string, Action<IGameManager<T>>>("Dominuno Skip", Effects<T>.DominunoSkip),
-            new Tuple<string, Action<IGameManager<T>>>("Dominuno Flip", Effects<T>.DominunoFlip),
-            new Tuple<string, Action<IGameManager<T>>>("Dominuno Give Two Tokens", Effects<T>.DominunoGiveTwoTokens),
-
-            new Tuple<string, Action<IGameManager<T>>>("Turntwist Play Again", Effects<T>.TurntwistPlayAgain),
-            new Tuple<string, Action<IGameManager<T>>>("Turntwist Random Turn", Effects<T>.TurntwistRandomTurn),
+        return new Tuple<string, Action<EffectsExecution<T>>>[] {
+            new Tuple<string, Action<EffectsExecution<T>>>("Skip Next", Effects<T>.SkipNext),
+            new Tuple<string, Action<EffectsExecution<T>>>("Give Two Tokens", Effects<T>.GiveTwoTokens),
+            new Tuple<string, Action<EffectsExecution<T>>>("Play Again", Effects<T>.PlayAgain),
+            new Tuple<string, Action<EffectsExecution<T>>>("Random Turn", Effects<T>.RandomTurn),
         };
     }
 
     ///<summary>
     /// Returns the name of every class implementing IEvaluable
     ///</summary>
-    public static string[] GetOutputTypeNames() {
+    public static Tuple<string, Generator<IEvaluable>>[] GetOutputTypes() {
 
-        return new string[] { "Number", "Letter" };
-    }
-
-    ///<summary>
-    /// Returns every class implementing IGameManager
-    ///</summary>
-    public static Tuple<string, Type>[] GetGameManagers() {
-
-        return new Tuple<string, Type>[] {
-            new Tuple<string, Type>("Standard", typeof(GameManager<>)),
-            new Tuple<string, Type>("Dominuno", typeof(GameManagerDominuno<>)),
-            new Tuple<string, Type>("Turntwist", typeof(GameManagerTurntwist<>)),
-        };
+        return new Tuple<string, Generator<IEvaluable>>[] {
+            new Tuple<string, Generator<IEvaluable>>("Number", Number.Generate),
+            new Tuple<string, Generator<IEvaluable>>("Letter", Letter.Generate),
+            };
     }
 }

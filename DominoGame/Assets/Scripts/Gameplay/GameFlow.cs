@@ -19,7 +19,7 @@ public class GameFlow : MonoBehaviour
     private object _gameManager;
     private bool _gameEnded = false;
 
-    public void StartGame<T>(IGameManager<T> manager) where T : IEvaluable {
+    public void StartGame<T>(GameManager<T> manager) where T : IEvaluable {
 
         GamePanel.SetActive(true);
         _history = GamePanel.GetComponentInChildren<HistoryOutput>();
@@ -35,7 +35,7 @@ public class GameFlow : MonoBehaviour
 
         if (_gameEnded) return;
 
-        var manager = (IGameManager<T>)_gameManager;
+        var manager = (GameManager<T>)_gameManager;
 
         var playData = manager.MakeMove();
 
@@ -89,7 +89,7 @@ public class GameFlow : MonoBehaviour
 
     void PrintHands<T>() where T : IEvaluable {
         
-        var manager = (IGameManager<T>)_gameManager;
+        var manager = (GameManager<T>)_gameManager;
         var finalHands = manager.PlayersTokens;
 
         string msg = "";

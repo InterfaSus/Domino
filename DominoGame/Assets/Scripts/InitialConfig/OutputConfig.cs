@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,23 +13,22 @@ public class OutputConfig : MonoBehaviour
 {   
 
     public SelectorController OutputSelector;
-    private string[] _outputTypes;
+    object[] _outputTypes;
 
     // Start is called before the first frame update
     void Start() {
         
-        _outputTypes = Implementations.GetOutputTypeNames();
-        OutputSelector.UpdateNames(_outputTypes);
+        _outputTypes = Implementations.GetOutputTypes();
+        OutputSelector.UpdateNames(TypesNameHandler.GetNames<Generator<IEvaluable>>(_outputTypes));
     }
 
     public void SendOutputType() {
 
-        int index = OutputSelector.Index;
-        string typeName = _outputTypes[index];
-        var gameConfig = GetComponent<GameConfig>();
+        string name = OutputSelector.Current;
+        Generator<IEvaluable> typeGenerator = TypesNameHandler.ImplementationByName<Generator<IEvaluable>>(_outputTypes, name);
 
-        if (typeName == "Number") gameConfig.GetImplementations<Number>(Number.Generate);
-        else if (typeName == "Letter") gameConfig.GetImplementations<Letter>(Letter.Generate);
+        var gameConfig = GetComponent<GameConfig>();
+        gameConfig.GetImplementations(typeGenerator);
 
         gameObject.SetActive(false);
     }
