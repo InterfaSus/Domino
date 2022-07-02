@@ -44,7 +44,7 @@ GameManager<T> CreateGame<T>(Generator<T> generator) where T : IEvaluable {
 
     VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 30); 
 
-    CriteriaCollection<T> collection = new CriteriaCollection<T>(Checker);
+    CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T>(VictoryCriteria<T>.EndAtXPass, 4));
     // collection.Add(Checker);
 
     evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;

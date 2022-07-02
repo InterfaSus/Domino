@@ -24,31 +24,8 @@ namespace DominoEngine.Utils.VictoryCriteria
             if(NoOneCanPlay(history, Players.Length))
             {
 
-            int[] scores = new int[Players.Length];
             Token<T>[][] hands = GetHands(Players);
-
-            GetScores(scores, hands, Evaluator);
-
-            List<string> Winners= new List<string>();
-            int lowestValue = int.MaxValue;
-
-            for (int i = 0; i < scores.Length; i++)
-            {
-                if( scores[i] < lowestValue)
-                {
-                    Winners = new List<string>();
-                   
-                    lowestValue = scores[i];
-                    Winners.Add(Players[i].Name);
-                }
-
-                else if ( scores[i] == lowestValue)
-                {
-                    Winners.Add(Players[i].Name);
-                }
-            }
-            
-            return Winners.ToArray();
+            return LowestHandPlayers(Players, Evaluator);
             }
 
             return null;
@@ -75,6 +52,27 @@ namespace DominoEngine.Utils.VictoryCriteria
                 if (!scores.ContainsKey(history[i].PlayerName)) scores.Add(history[i].PlayerName, 0);
                 scores[history[i].PlayerName] += evaluator(history[i].Token);
                 if(scores[history[i].PlayerName] >= Value) return new string[] { history[i].PlayerName };
+            }
+
+            return null;
+        }
+
+         ///<summary>
+        ///The game is considered ended after the players pass "Value" times in total
+        ///</summary>
+        ///<returns> The players with the less amount of value in hand</returns>
+        public static string[]? EndAtXPass(GameStatus<T> gameStatus, Player<T>[] Players, int Value)
+        {
+            List<PlayData<T>> history = gameStatus.history;
+            evaluator<T> evaluator = gameStatus.Evaluator;
+
+            int passAmount = 0;
+            foreach (var move in history) {
+                if (move.Token == null) passAmount++;
+            }
+
+            if (NoOneCanPlay(history, Players.Length) || passAmount >= Value) {
+                return LowestHandPlayers(Players, evaluator);
             }
 
             return null;
@@ -108,15 +106,39 @@ namespace DominoEngine.Utils.VictoryCriteria
             return hands;
         }
 
-        private static void GetScores( int[] scores,  Token<T>[][] hands, evaluator<T> Evaluator)
-        {
-             for (int i = 0; i < scores.Length; i++)
+        private static string[] LowestHandPlayers(Player<T>[] players, evaluator<T> Evaluator)
+        {   
+            int[] scores = new int[players.Length];
+            Token<T>[][] hands = GetHands(players);
+
+            for (int i = 0; i < scores.Length; i++)
             {
                 for (int j = 0; j < hands[i].Length; j++)
                 {
                     scores[i] += Evaluator(hands[i][j]); 
                 }
             }
+
+            List<string> Winners= new List<string>();
+            int lowestValue = int.MaxValue;
+
+            for (int i = 0; i < scores.Length; i++)
+            {
+                if( scores[i] < lowestValue)
+                {
+                    Winners = new List<string>();
+                   
+                    lowestValue = scores[i];
+                    Winners.Add(players[i].Name);
+                }
+
+                else if ( scores[i] == lowestValue)
+                {
+                    Winners.Add(players[i].Name);
+                }
+            }
+            
+            return Winners.ToArray();
         }
 #endregion
         

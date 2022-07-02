@@ -42,7 +42,8 @@ public static class Implementations {
 
         return new Tuple<string, victoryCriteria<T>>[] {
             new Tuple<string, victoryCriteria<T>>("Default Criteria", VictoryCriteria<T>.DefaultCriteria),
-            new Tuple<string, victoryCriteria<T>>("Surpass Sum Criteria", VictoryCriteria<T>.SurpassSumCriteria)
+            new Tuple<string, victoryCriteria<T>>("Surpass Sum Criteria", VictoryCriteria<T>.SurpassSumCriteria),
+            new Tuple<string, victoryCriteria<T>>("Ends At X Pass", VictoryCriteria<T>.EndAtXPass),
         };
     }
 
@@ -72,7 +73,7 @@ public static class Implementations {
     }
 
     ///<summary>
-    /// Returns the name of every class implementing IEvaluable
+    /// Returns the generator of every class implementing IEvaluable and its name
     ///</summary>
     public static Tuple<string, Generator<IEvaluable>>[] GetOutputTypes() {
 
