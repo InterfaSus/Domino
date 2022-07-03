@@ -9,9 +9,7 @@ public class Evaluators<T>  where T : IEvaluable {
     ///Default additive evaluator
     ///</summary>
     ///<returns> The sum of the values of each output of the token </returns>
-    public static int AdditiveEvaluator(Token<T>? token) {
-
-        if(token == null) return 0;
+    public static int AdditiveEvaluator(Token<T> token) {
 
         T[] outputs = token.Outputs;
         int sum = 0;
@@ -26,9 +24,7 @@ public class Evaluators<T>  where T : IEvaluable {
     ///When the value of the token its a multiple of 5, it doubles its value. In other cases its normal addtion
     ///</summary>
     ///<returns> The sum of the values of each output of the token </returns>
-    public static int FiveMultiplesPriority(Token<T>? token) {
-
-        if(token == null) return 0;
+    public static int FiveMultiplesPriority(Token<T> token) {
 
         T[] outputs = token.Outputs;
         int sum = 0;

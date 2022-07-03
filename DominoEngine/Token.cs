@@ -46,13 +46,7 @@ namespace DominoEngine
         ///Returns all the outputs of the token
         ///</summary>
         ///<returns> <c>An array of type T with every token output</c> </returns>
-        public T[] Outputs 
-        { 
-            get
-            {
-                return (T[])outputs.Clone();
-            } 
-        }
+        public T[] Outputs { get => (T[])outputs.Clone(); }
     
         ///<summary>
         ///Returns all the availables outputs of the token
@@ -92,6 +86,27 @@ namespace DominoEngine
             result.Remove(result.Length - 1, 1);
             result.Append("]");
             return result.ToString();
+        }
+
+        public override bool Equals(object? obj) {
+
+            if (obj == null) return false;
+            if (obj is Token<T> token) {
+                
+                var otherOutputs = token.Outputs;
+                for (int i = 0; i < otherOutputs.Length; i++) {
+                    if (!otherOutputs[i].Equals(Outputs[i])) return false;
+                }
+                return true;
+            }
+            else return false;
+        }
+
+        public object Clone() => new Token<T>(this.Outputs);
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }
