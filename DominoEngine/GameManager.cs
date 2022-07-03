@@ -10,11 +10,11 @@ namespace DominoEngine;
 ///</summary>
 public class GameManager<T> where T : IEvaluable {
 
-    public GameStatus<T> Status { get; }
-
+    private readonly History<T> _history;
     private readonly Board<T> _board;
     internal readonly Player<T>[] _players;
     internal readonly Stack<Token<T>> _tokenPool;
+    private readonly evaluator<T> _evaluator;
     private readonly CriteriaCollection<T> _victoryCheckerCollection;
     private readonly Powers<T> _powers;
     private readonly EffectsExecution<T> _effectsExecutor;
@@ -23,6 +23,11 @@ public class GameManager<T> where T : IEvaluable {
     ///Returns an array containing the free outputs on the board with the amount of times each one appears
     ///</summary>
     public KeyValuePair<T, int>[] FreeOutputsAmount { get => _board.OutputsAmount; }
+
+    ///<summary>
+    ///Returns an array containing the moves history
+    ///</summary>
+    public PlayData<T>[] History { get => _history.MovesHistory; }
 
     ///<summary>
     ///Returns an array containing each player's name and hand
@@ -85,7 +90,8 @@ public class GameManager<T> where T : IEvaluable {
 
         _players = new Player<T>[strategies.Length];
         _board = new Board<T>();
-        Status = new GameStatus<T>(evaluator);
+        _evaluator = evaluator;
+        _history = new History<T>();
         
         var generatedResult = TokenGeneration<T>.GenerateTokens(tokenTypeAmount, generator, outputsAmount);
         _tokenTypes = generatedResult.Item1;
@@ -122,7 +128,7 @@ public class GameManager<T> where T : IEvaluable {
             availableOutputs = _tokenTypes!;
             firstMove = true;
         }
-        var playData = currentPlayer.Play(availableOutputs, Status);
+        var playData = currentPlayer.Play(availableOutputs, _history.MovesHistory, _evaluator);
 
         if (playData.Token != null) {
 
@@ -132,16 +138,16 @@ public class GameManager<T> where T : IEvaluable {
         T? output = playData.Output;
         if (firstMove) output = default(T);
                 
-        Status.AddMove(playData.PlayerName, playData.Token!, output!, this._board.FreeOutputs);
+        _history.AddMove(playData.PlayerName, playData.Token!, output!, this._board.FreeOutputs);
 
         var effects = _powers.GetEffects(playData.Token);
         foreach (var item in effects) {
             item(_effectsExecutor);
         }
 
-        string[]? winners = _victoryCheckerCollection.RunCheck(Status, _players);
+        string[]? winners = _victoryCheckerCollection.RunCheck(_history.MovesHistory, _evaluator, PlayersTokens);
 
-        return new WinnerPlayData<T>(playData.PlayerName, playData.Token!, output, winners!, this._board.FreeOutputs);
+        return new WinnerPlayData<T>(playData.PlayerName, this._board.FreeOutputs, playData.Token!, output, winners!);
     }
     
     internal Player<T> NextPlayer() {

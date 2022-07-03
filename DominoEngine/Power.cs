@@ -39,7 +39,7 @@ public class Powers<T> where T : IEvaluable {
 
         foreach (var item in _powers) {
             
-            if (item.Filter(token)) result.Add(item.Effect);
+            if (item.Filter((Token<T>)token.Clone())) result.Add(item.Effect);
         }
 
         return result.ToArray();

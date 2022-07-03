@@ -10,22 +10,18 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///Default victory criteria
         ///</summary>
         ///<returns> The first player that use all their tokens, or if no one has play in a full round, the player/s with the lowest tokens. </returns>
-        public static string[]? DefaultCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value = 0)
-        {
+        public static string[]? DefaultCriteria(PlayData<T>[] history, evaluator<T> evaluator, Tuple<string ,Token<T>[]>[] PlayersTokens, int Value = 0)
+        {   
 
-            evaluator<T> Evaluator = gameStatus.Evaluator;
-            List<PlayData<T>> history = gameStatus.history;
-
-            for (int i = 0; i < Players.Length; i++)
+            for (int i = 0; i < PlayersTokens.Length; i++)
             {
-                if( NoTokensLeft( Players[i] )) return new string[] {Players[i].Name};
+                if( NoTokensLeft( PlayersTokens[i].Item2 )) return new string[] {PlayersTokens[i].Item1};
             }
             
-            if(NoOneCanPlay(history, Players.Length))
+            if(NoOneCanPlay(history, PlayersTokens.Length))
             {
 
-            Token<T>[][] hands = GetHands(Players);
-            return LowestHandPlayers(Players, Evaluator);
+            return LowestHandPlayers(PlayersTokens, evaluator);
             }
 
             return null;
@@ -36,21 +32,20 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///Surpass Sum victory criteria
         ///</summary>
         ///<returns> The first player that surpass the value of the condition win</returns>
-        public static string[]? SurpassSumCriteria(GameStatus<T> gameStatus, Player<T>[] Players, int Value)
+        public static string[]? SurpassSumCriteria(PlayData<T>[] history, evaluator<T> evaluator, Tuple<string, Token<T>[]>[] PlayersTokens, int Value)
         {
-            List<PlayData<T>> history = gameStatus.history;
-            evaluator<T> evaluator = gameStatus.Evaluator;
-
-            if (NoOneCanPlay(history, Players.Length)) {
+            if (NoOneCanPlay(history, PlayersTokens.Length)) {
                 return new string[0];
             }
 
             Dictionary<string, int> scores = new Dictionary<string, int>();
 
-            for (int i = 0; i < history.Count; i++)
+            for (int i = 0; i < history.Length; i++)
             {   
+                if (history[i].Token == null) continue;
+
                 if (!scores.ContainsKey(history[i].PlayerName)) scores.Add(history[i].PlayerName, 0);
-                scores[history[i].PlayerName] += evaluator(history[i].Token);
+                scores[history[i].PlayerName] += evaluator(history[i].Token!);
                 if(scores[history[i].PlayerName] >= Value) return new string[] { history[i].PlayerName };
             }
 
@@ -61,18 +56,15 @@ namespace DominoEngine.Utils.VictoryCriteria
         ///The game is considered ended after the players pass "Value" times in total
         ///</summary>
         ///<returns> The players with the less amount of value in hand</returns>
-        public static string[]? EndAtXPass(GameStatus<T> gameStatus, Player<T>[] Players, int Value)
+        public static string[]? EndAtXPass(PlayData<T>[] history, evaluator<T> evaluator, Tuple<string, Token<T>[]>[] PlayersTokens, int Value)
         {
-            List<PlayData<T>> history = gameStatus.history;
-            evaluator<T> evaluator = gameStatus.Evaluator;
-
             int passAmount = 0;
             foreach (var move in history) {
                 if (move.Token == null) passAmount++;
             }
 
-            if (NoOneCanPlay(history, Players.Length) || passAmount >= Value) {
-                return LowestHandPlayers(Players, evaluator);
+            if (NoOneCanPlay(history, PlayersTokens.Length) || passAmount >= Value) {
+                return LowestHandPlayers(PlayersTokens, evaluator);
             }
 
             return null;
@@ -80,13 +72,13 @@ namespace DominoEngine.Utils.VictoryCriteria
 
 #region Utils
 
-        private static bool NoTokensLeft( Player<T> Player)
+        private static bool NoTokensLeft(Token<T>[] hand)
         {
-            return Player.TokensInHand.Length == 0;
+            return hand.Length == 0;
         }
-        private static bool NoOneCanPlay( List<PlayData<T>> history, int playersNum)
+        private static bool NoOneCanPlay(PlayData<T>[] history, int playersNum)
         {
-            for (int i = history.Count-1; i >= history.Count - playersNum; i--)
+            for (int i = history.Length-1; i >= history.Length - playersNum; i--)
             {
                 if(history[i].Token != null) return false;   
             }
@@ -94,28 +86,15 @@ namespace DominoEngine.Utils.VictoryCriteria
             return true;
         }
 
-        private static Token<T>[][] GetHands(Player<T>[] Players)
-        {
-            Token<T>[][] hands = new Token<T>[Players.Length][];
-
-            for (int i = 0; i < Players.Length; i++)
-            {
-                hands[i] = Players[i].TokensInHand;
-            }
-
-            return hands;
-        }
-
-        private static string[] LowestHandPlayers(Player<T>[] players, evaluator<T> Evaluator)
+        private static string[] LowestHandPlayers(Tuple<string, Token<T>[]>[] PlayersTokens, evaluator<T> Evaluator)
         {   
-            int[] scores = new int[players.Length];
-            Token<T>[][] hands = GetHands(players);
+            int[] scores = new int[PlayersTokens.Length];
 
             for (int i = 0; i < scores.Length; i++)
             {
-                for (int j = 0; j < hands[i].Length; j++)
-                {
-                    scores[i] += Evaluator(hands[i][j]); 
+                for (int j = 0; j < PlayersTokens[i].Item2.Length; j++)
+                {   
+                    scores[i] += Evaluator(PlayersTokens[i].Item2[j]); 
                 }
             }
 
@@ -129,12 +108,12 @@ namespace DominoEngine.Utils.VictoryCriteria
                     Winners = new List<string>();
                    
                     lowestValue = scores[i];
-                    Winners.Add(players[i].Name);
+                    Winners.Add(PlayersTokens[i].Item1);
                 }
 
                 else if ( scores[i] == lowestValue)
                 {
-                    Winners.Add(players[i].Name);
+                    Winners.Add(PlayersTokens[i].Item1);
                 }
             }
             

@@ -3,18 +3,14 @@ using DominoEngine.Utils;
 namespace DominoEngine;
 
 ///<summary>
-///A class storing some of the rules of the game and the moves history
+///A class storing the moves history
 ///</summary>
-public class GameStatus<T> where T : IEvaluable {
-
-    public evaluator<T> Evaluator { get; }
+public class History<T> where T : IEvaluable {
 
     private readonly List<PlayData<T>> _moves;
 
-    public GameStatus(evaluator<T> evaluator) {
-
+    public History() {
         _moves = new List<PlayData<T>>();
-        Evaluator = evaluator;
     }
 
     ///<summary>
@@ -25,8 +21,8 @@ public class GameStatus<T> where T : IEvaluable {
     ///<param name="output">The output where the token was placed</param>
     internal void AddMove(string playerName, Token<T> token, T output, T[] AvailableOutputs) {
         
-        _moves.Add((new PlayData<T>(playerName, token, output, AvailableOutputs)));
+        _moves.Add((new PlayData<T>(playerName, AvailableOutputs, token, output)));
     }
 
-    internal List<PlayData<T>> history => _moves;
+    internal PlayData<T>[] MovesHistory => _moves.ToArray();
 }

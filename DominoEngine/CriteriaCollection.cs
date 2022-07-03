@@ -1,3 +1,5 @@
+using DominoEngine.Utils;
+
 namespace DominoEngine;
 
 public class CriteriaCollection<T> where T : IEvaluable
@@ -18,7 +20,7 @@ public class CriteriaCollection<T> where T : IEvaluable
 
     public void Add(VictoryChecker<T> v){ CheckersList.Add(v); }
 
-    public string[]? RunCheck(GameStatus<T> gameStatus, Player<T>[] players)
+    public string[]? RunCheck(PlayData<T>[] history, evaluator<T> evaluator, Tuple<string, Token<T>[]>[] PlayersTokens)
     {
         HashSet< string > winners = new HashSet< string >();
         bool noOneWon = false;
@@ -26,7 +28,7 @@ public class CriteriaCollection<T> where T : IEvaluable
         for (int i = 0; i < CheckersList.Count; i++)
         {
             VictoryChecker<T> v = CheckersList[i];
-            string[]? temp = ( v.Check(gameStatus, players));
+            string[]? temp = ( v.Check(history, evaluator, PlayersTokens));
 
             if(temp != null) {
                 if (temp.Length == 0) noOneWon = true;
