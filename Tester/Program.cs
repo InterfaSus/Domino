@@ -37,10 +37,10 @@ GameManager<T> CreateGame<T>(Generator<T> generator) where T : IEvaluable {
 
     strategy<T>[] playerStrategies = new strategy<T>[4];
 
-    playerStrategies[0] = Strategies<T>.PreventOtherPlayersFromPlaying;
-    playerStrategies[1] = Strategies<T>.PreventOtherPlayersFromPlaying;
-    playerStrategies[2] = Strategies<T>.PreventOtherPlayersFromPlaying;
-    playerStrategies[3] = Strategies<T>.PreventOtherPlayersFromPlaying;
+    playerStrategies[0] = Strategies<T>.RandomOption;
+    playerStrategies[1] = Strategies<T>.RandomOption;
+    playerStrategies[2] = Strategies<T>.RandomOption;
+    playerStrategies[3] = Strategies<T>.RandomOption;
 
     VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 30); 
 

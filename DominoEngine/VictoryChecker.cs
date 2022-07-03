@@ -12,9 +12,9 @@ namespace DominoEngine
             value = Value;
         }
 
-        public string[]? Check(GameStatus<T> gameStatus, Player<T>[] Players)
+        public string[]? Check(PlayData<T>[] history, evaluator<T> evaluator, Tuple<string, Token<T>[]>[] PlayersTokens)
         {
-            return criteria(gameStatus, Players, value);
+            return criteria(history, evaluator, PlayersTokens, value);
         }
     }
 }
