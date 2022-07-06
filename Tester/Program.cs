@@ -37,14 +37,14 @@ GameManager<T> CreateGame<T>(Generator<T> generator) where T : IEvaluable {
 
     strategy<T>[] playerStrategies = new strategy<T>[4];
 
-    playerStrategies[0] = Strategies<T>.RandomOption;
-    playerStrategies[1] = Strategies<T>.RandomOption;
-    playerStrategies[2] = Strategies<T>.RandomOption;
-    playerStrategies[3] = Strategies<T>.RandomOption;
+    playerStrategies[0] = Strategies<T>.PreventOtherPlayersFromPlaying;
+    playerStrategies[1] = Strategies<T>.PreventOtherPlayersFromPlaying;
+    playerStrategies[2] = Strategies<T>.PreventOtherPlayersFromPlaying;
+    playerStrategies[3] = Strategies<T>.PreventOtherPlayersFromPlaying;
 
     VictoryChecker<T> Checker = new VictoryChecker<T>(VictoryCriteria<T>.SurpassSumCriteria, 30); 
 
-    CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T>(VictoryCriteria<T>.EndAtXPass, 4));
+    CriteriaCollection<T> collection = new CriteriaCollection<T>(new VictoryChecker<T>(VictoryCriteria<T>.DefaultCriteria));
     // collection.Add(Checker);
 
     evaluator<T> ev = Evaluators<T>.AdditiveEvaluator;
@@ -58,7 +58,7 @@ GameManager<T> CreateGame<T>(Generator<T> generator) where T : IEvaluable {
         evaluator: ev,
         victoryCheckerCollection: collection,
         powers: new Powers<T>(new Power<T>[]{ 
-            new Power<T>(Filters<T>.AllDifferent, Effects<T>.RandomTurn),
+            // new Power<T>(Filters<T>.AllDifferent, Effects<T>.RandomTurn),
             // new Power<T>(Filters<T>.SameParity, Effects<T>.DominunoFlip),
             // new Power<T>(Filters<T>.AllEqual, Effects<T>.DominunoGiveTwoTokens)
         }));

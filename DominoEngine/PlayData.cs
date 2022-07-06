@@ -23,7 +23,6 @@ public class PlayData<T> where T : IEvaluable {
         this.AvailableOutputs = AvailableOutputs;
         this.Token = (token == null ? null : (Token<T>)token.Clone());
         this.Output = output;
-        if(token == null && AvailableOutputs == null) throw new Exception ("If a player pass, the outputs that were available must be pass to the constructor");
     }
 }
 

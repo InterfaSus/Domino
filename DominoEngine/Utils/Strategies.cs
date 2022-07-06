@@ -61,20 +61,34 @@ namespace DominoEngine.Utils.Strategies
             }
 
             T[] PassOutputs = HashPassOutputs.ToArray();
+            Dictionary<T, int> outputPriority = new Dictionary<T, int>();
 
             for (int i = 0; i < Hand.Length; i++)
             {
+                bool atLeastOne = false, decreased = false;
                 for (int j = 0; j < AvailableOutputs.Length; j++)
                 {
+                    if (!outputPriority.ContainsKey(AvailableOutputs[j])) outputPriority.Add(AvailableOutputs[j], 0);
                     for (int k = 0; k < PassOutputs.Length; k++)
                     {
-                      if(Hand[i].HasOutput(AvailableOutputs[j]) && 
-                         Hand[i].HasOutput(PassOutputs[k])) {
-                            if (!AvailableOutputs[j].Equals(PassOutputs[k]))
+                        if(Hand[i].HasOutput(AvailableOutputs[j]) && 
+                            Hand[i].HasOutput(PassOutputs[k])) {
+                            if (!AvailableOutputs[j].Equals(PassOutputs[k])) {
+
+                                outputPriority[AvailableOutputs[j]]++;
                                 valuesOfTokens[i] *= 2;
-                            else
-                                valuesOfTokens[i] = valuesOfTokens[i] / 2 + valuesOfTokens[i] % 2;
-                         }
+                                if (decreased) valuesOfTokens[i] *= 2;
+
+                                atLeastOne = true;
+                                decreased = false;
+                            }
+                            else if (!atLeastOne) {
+
+                                outputPriority[AvailableOutputs[j]]--;
+                                valuesOfTokens[i] /= 2;
+                                decreased = true;
+                            }
+                        }
                         
                     }
                 }
@@ -92,28 +106,36 @@ namespace DominoEngine.Utils.Strategies
                 }
             }
 
-            T outputToPlay = SelectRandomOutput(Hand[biggestValueIndex], AvailableOutputs);
+            // Selecting output to play
+            T? outputToPlay = default(T);
+            int bestValue = int.MinValue;
 
-            return new Tuple<Token<T>, T>(Hand[biggestValueIndex], outputToPlay);
+            foreach (var output in Hand[biggestValueIndex].Outputs) {
+                if (outputPriority.ContainsKey(output) && outputPriority[output] > bestValue) {
+                    bestValue = outputPriority[output];
+                    outputToPlay = output;
+                }
+            }
+
+            return new Tuple<Token<T>, T>(Hand[biggestValueIndex], outputToPlay!);
         }
 
         private static T SelectRandomOutput(Token<T> Token, T[] AvailableOutputs)
         {
-            T? outputToPlay = default(T);
+            HashSet<T> outputs = new HashSet<T>();
             
             for (int i = 0; i < AvailableOutputs.Length; i++)
             {
                 if (Token.HasOutput( AvailableOutputs[i] ))
                 {
-                    outputToPlay = AvailableOutputs[i];
-                    break;
+                    outputs.Add(AvailableOutputs[i]);
                 }                    
             }
-
-            return outputToPlay!;
+            
+            return outputs.ToArray()[random.Next(outputs.Count)];
         }
         private static void AddPassOutputs(HashSet<T> PassOutputs, T[] Outputs)
-        {
+        {   
             for (int i = 0; i < Outputs.Length; i++)
             {
                 PassOutputs.Add(Outputs[i]);
