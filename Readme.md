@@ -27,4 +27,7 @@ Una vez hecho esto se generará un archivo **DominoEngine.dll**, el cual se envi
 ## La solución DominoGame.sln
 
 **DominoGame.sln** es una solución de Unity, la cual hace uso de la biblioteca de clases **DominoEngine** para mostrar todas las opciones configurables a un usuario de forma visual, permitir que este seleccione la configuración deseada, y simular un juego con dicha configuración. Para poder acceder y trabajar con el editor de esta solución se debe tener instalado el editor de **Unity versión 2021.3.3f1 o posterior**.  
-Alternativamente se puede descargar en los **Releases** del repositorio la build correspondiente al sistema operativo que se esté utilizando, y lanzar el ejecutable que se encuentra allí.  
+
+## Releases
+
+Para probar la última versión estable, se puede descargar en los **Releases** del repositorio la build correspondiente al sistema operativo que se esté utilizando, y lanzar el ejecutable que se encuentra allí. Para no tener que hacer una build cada vez que se modifique algo en **DominoEngine.sln**, se tiene la opción de tomar el DominoEngine.dll generado tras la compilación, y desde la carpeta principal de la build, entrar a *./DominoGame_Data/Managed/*, y aplastar el DominoEngine.dll que se encuentra ahí. Es muy importante que los cambios realizados sean compatibles con la aplicación visual, si no esto podría traer errores. En caso de que los cambios sean incompatibles, sí será necesario abrir el editor de Unity y hacer las modificaciones necesarias.  
